@@ -12,13 +12,14 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 // Lý do: Credentials từ Firebase Console
 // User cần replace với project thật
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-}
+  apiKey: "AIzaSyC1BdGk786XLyudxeY7kx9CiSvpSSphrhg",
+  authDomain: "spck-94106.firebaseapp.com",
+  projectId: "spck-94106",
+  storageBucket: "spck-94106.firebasestorage.app",
+  messagingSenderId: "746508249338",
+  appId: "1:746508249338:web:9f8d8507a3b72786280143",
+  measurementId: "G-MNYH8SS1Q5"
+};
 
 // INITIALIZE FIREBASE
 // Lý do: Khởi tạo Firebase app với config
