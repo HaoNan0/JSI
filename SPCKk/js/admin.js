@@ -7,8 +7,8 @@
 // CLOUDINARY CONFIG
 // Lý do: Credentials cho Cloudinary upload widget
 // User cần thay YOUR_CLOUD_NAME và YOUR_UPLOAD_PRESET
-const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME" // Thay bằng cloud name từ Cloudinary
-const CLOUDINARY_UPLOAD_PRESET = "YOUR_UPLOAD_PRESET" // Thay bằng upload preset
+const CLOUDINARY_CLOUD_NAME = `dipk2lnyf` // Thay bằng cloud name từ Cloudinary
+const CLOUDINARY_UPLOAD_PRESET = `sanphamck` // Thay bằng upload preset
 
 // MOCK ADMIN DATA
 const mockOrders = [
