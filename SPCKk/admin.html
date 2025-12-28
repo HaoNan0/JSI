@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Market</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <!-- Added Cloudinary upload widget script -->
+  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+</head>
+<body class="admin-page">
+  <!-- ADMIN CONTAINER - 2 COLUMNS
+       Lý do: Sidebar + Main content
+       Position: Fixed sidebar, scrollable content
+  -->
+  <div class="admin-layout">
+    <!-- SIDEBAR NAVIGATION
+         Lý do: Fixed sidebar, menu items
+         Sticky: Dùng position fixed hoặc sticky
+    -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <h2 class="admin-logo">Market Admin</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- DASHBOARD -->
+        <a href="#" class="sidebar-link active" data-section="dashboard">
+          <span class="sidebar-icon"><i class="fa-solid fa-chart-column"></i></span>
+          <span>Tổng Quan</span>
+        </a>
+
+        <!-- PRODUCTS -->
+        <a href="#" class="sidebar-link" data-section="products">
+          <span class="sidebar-icon"><i class="fa-solid fa-box"></i></span>
+          <span>Quản Lý Sản Phẩm</span>
+        </a>
+
+        <!-- ORDERS -->
+        <a href="#" class="sidebar-link" data-section="orders">
+          <span class="sidebar-icon"><i class="fa-solid fa-cart-shopping"></i></span>
+          <span>Quản Lý Đơn Hàng</span>
+        </a>
+
+        <!-- USERS -->
+        <a href="#" class="sidebar-link" data-section="users">
+          <span class="sidebar-icon"><i class="fa-solid fa-user"></i></span>
+          <span>Quản Lý Người Dùng</span>
+        </a>
+
+        <!-- CATEGORIES -->
+        <a href="#" class="sidebar-link" data-section="categories">
+          <span class="sidebar-icon"><i class="fa-solid fa-tag"></i></span>
+          <span>Danh Mục</span>
+        </a>
+
+        <!-- SETTINGS -->
+        <a href="#" class="sidebar-link" data-section="settings">
+          <span class="sidebar-icon"><i class="fa-solid fa-gear"></i></span>
+          <span>Cài Đặt</span>
+        </a>
+      </nav>
+
+      <!-- SIDEBAR FOOTER - Logout -->
+      <div class="sidebar-footer">
+        <button id="adminLogout" class="btn btn-outline btn-sm">
+          Đăng Xuất
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA
+         Lý do: Flexbox column, scrollable
+         Header: Top bar với search, admin info
+    -->
+    <main class="admin-main">
+      <!-- TOP BAR
+           Lý do: Search, notifications, admin profile
+      -->
+      <div class="admin-topbar">
+        <div class="topbar-left">
+          <input 
+            type="search" 
+            id="adminSearch" 
+            placeholder="Tìm kiếm..." 
+            class="search-input"
+          >
+        </div>
+        <div class="topbar-right">
+          <button class="notification-btn">
+            <span><i class="fa-solid fa-bell"></i></span>
+            <span class="notification-badge">3</span>
+          </button>
+          <div class="admin-profile">
+            <img src="/placeholder.svg?height=40&width=40" alt="Admin" class="profile-avatar">
+            <span class="profile-name">Admin User</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENT CONTAINER
+           Lý do: Sections displayed based on sidebar click
+           Initially show dashboard
+      -->
+      <div class="admin-content">
+        <!-- ========== DASHBOARD SECTION ========== -->
+        <section id="dashboardSection" class="admin-section active">
+          <div class="section-header">
+            <h1>Tổng Quan</h1>
+          </div>
+
+          <!-- STATS CARDS
+               Lý do: 4 cards hiển thị key metrics
+               Grid 4 cột, responsive
+          -->
+          <div class="stats-grid">
+            <!-- CARD 1: Doanh Thu -->
+            <div class="stat-card">
+              <div class="stat-icon revenue"><i class="fa-solid fa-sack-dollar"></i></div>
+              <div class="stat-content">
+                <h3>Doanh Thu</h3>
+                <p class="stat-value">₫50.000.000</p>
+                <span class="stat-change positive">+12% tuần này</span>
+              </div>
+            </div>
+
+            <!-- CARD 2: Đơn Hàng -->
+            <div class="stat-card">
+              <div class="stat-icon orders"><i class="fa-solid fa-box"></i></div>
+              <div class="stat-content">
+                <h3>Đơn Hàng</h3>
+                <p class="stat-value">234</p>
+                <span class="stat-change positive">+8% tuần này</span>
+              </div>
+            </div>
+
+            <!-- CARD 3: Người Dùng Mới -->
+            <div class="stat-card">
+              <div class="stat-icon users"><i class="fa-solid fa-user"></i></div>
+              <div class="stat-content">
+                <h3>Người Dùng Mới</h3>
+                <p class="stat-value">45</p>
+                <span class="stat-change positive">+5% tuần này</span>
+              </div>
+            </div>
+
+            <!-- CARD 4: Sản Phẩm -->
+            <div class="stat-card">
+              <div class="stat-icon products"><i class="fa-solid fa-chart-column"></i></div>
+              <div class="stat-content">
+                <h3>Sản Phẩm</h3>
+                <p class="stat-value">1.234</p>
+                <span class="stat-change neutral">No change</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RECENT ORDERS TABLE
+               Lý do: Hiển thị đơn hàng gần đây
+               Scrollable trên mobile
+          -->
+          <div class="card mt-lg">
+            <h2>Đơn Hàng Gần Đây</h2>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Đơn Hàng</th>
+                    <th>Khách Hàng</th>
+                    <th>Giá Trị</th>
+                    <th>Trạng Thái</th>
+                    <th>Ngày</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="recentOrdersBody">
+                  <!-- JS sẽ render rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== PRODUCTS SECTION ========== -->
+        <section id="productsSection" class="admin-section">
+          <div class="section-header">
+            <h1>Quản Lý Sản Phẩm</h1>
+            <button class="btn btn-primary" id="addProductBtn">+ Thêm Sản Phẩm</button>
+          </div>
+
+          <!-- PRODUCT TABLE
+               Lý do: CRUD table cho sản phẩm
+               Columns: ID, Name, Category, Stock, Price, Action
+          -->
+          <div class="card">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Danh Mục</th>
+                    <th>Kho Hàng</th>
+                    <th>Giá</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                  <!-- JS sẽ render rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== ORDERS SECTION ========== -->
+        <section id="ordersSection" class="admin-section">
+          <div class="section-header">
+            <h1>Quản Lý Đơn Hàng</h1>
+          </div>
+
+          <!-- ORDER FILTERS
+               Lý do: Filter by status (pending, shipped, delivered, cancelled)
+          -->
+          <div class="filter-bar">
+            <button class="filter-btn active" data-status="all">Tất Cả</button>
+            <button class="filter-btn" data-status="pending">Chờ Xử Lý</button>
+            <button class="filter-btn" data-status="shipped">Đã Giao</button>
+            <button class="filter-btn" data-status="delivered">Hoàn Thành</button>
+            <button class="filter-btn" data-status="cancelled">Đã Hủy</button>
+          </div>
+
+          <div class="card">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Đơn Hàng</th>
+                    <th>Khách Hàng</th>
+                    <th>Giá Trị</th>
+                    <th>Trạng Thái</th>
+                    <th>Ngày</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                  <!-- JS sẽ render rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== USERS SECTION ========== -->
+        <section id="usersSection" class="admin-section">
+          <div class="section-header">
+            <h1>Quản Lý Người Dùng</h1>
+          </div>
+
+          <div class="card">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Vai Trò</th>
+                    <th>Ngày Tạo</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <!-- JS sẽ render rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== CATEGORIES SECTION ========== -->
+        <section id="categoriesSection" class="admin-section">
+          <div class="section-header">
+            <h1>Danh Mục</h1>
+            <button class="btn btn-primary" id="addCategoryBtn">+ Thêm Danh Mục</button>
+          </div>
+
+          <div class="category-grid" id="categoryGrid">
+            <!-- JS sẽ render categories -->
+          </div>
+        </section>
+
+        <!-- ========== SETTINGS SECTION ========== -->
+        <section id="settingsSection" class="admin-section">
+          <div class="section-header">
+            <h1>Cài Đặt</h1>
+          </div>
+
+          <div class="card">
+            <h3>Cài Đặt Cửa Hàng</h3>
+            <form id="settingsForm" class="form-group">
+              <div class="form-group">
+                <label>Tên Cửa Hàng</label>
+                <input type="text" value="ShopX" required>
+              </div>
+              <div class="form-group">
+                <label>Email Hỗ Trợ</label>
+                <input type="email" value="support@shopx.com" required>
+              </div>
+              <div class="form-group">
+                <label>Điện Thoại</label>
+                <input type="tel" value="+84 123 456 789" required>
+              </div>
+              <div class="form-group">
+                <label>Địa Chỉ</label>
+                <textarea rows="3">Hà Nội, Việt Nam</textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Lưu Cài Đặt</button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL - Add/Edit Product
+       Lý do: Modal form để thêm/sửa sản phẩm
+       Initially hidden, show khi click "Thêm Sản Phẩm"
+  -->
+  <div class="modal hidden" id="productModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Thêm Sản Phẩm</h2>
+        <button class="modal-close" id="closeProductModal">&times;</button>
+      </div>
+      <form id="productForm" class="modal-body form-group">
+        <div class="form-group">
+          <label>Tên Sản Phẩm</label>
+          <input type="text" id="productName" required>
+        </div>
+        
+        <!-- Added image upload section with Cloudinary -->
+        <div class="form-group">
+          <label>Hình Ảnh Sản Phẩm</label>
+          <div class="image-upload-container">
+            <div id="productImagePreview" class="image-preview hidden">
+              <img id="previewImage" src="/placeholder.svg" alt="Preview">
+              <button type="button" class="remove-image-btn" id="removeImageBtn">&times;</button>
+            </div>
+            <button type="button" class="btn btn-outline" id="uploadImageBtn">
+              <i class="fa-solid fa-camera"></i> Upload từ Cloudinary
+            </button>
+            <input type="hidden" id="productImageUrl">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Danh Mục</label>
+          <select id="productCategory" required>
+            <option value="">-- Chọn Danh Mục --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Giá (VNĐ)</label>
+          <input type="number" id="productPrice" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Kho Hàng</label>
+          <input type="number" id="productStock" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Mô Tả</label>
+          <textarea id="productDescription" rows="4"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="cancelProductModal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

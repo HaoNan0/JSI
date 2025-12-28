@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market - Mua sắm trực tuyến</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+  <header class="header sticky-header">
+    <div class="container header-content">
+      <div class="header-left">
+        <h1 class="logo">Market</h1>
+      </div>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="#" class="nav-link active">Giới Thiệu</a>
+        <a href="#products" class="nav-link">Sản Phẩm</a>
+        <a href="#contact" class="nav-link">Liên Hệ</a>
+      </nav>
+
+      <div class="header-right">
+        <div id="authButtons" class="auth-buttons">
+          <a href="login.html" class="btn btn-outline btn-sm">Đăng Nhập</a>
+          <a href="register.html" class="btn btn-primary btn-sm">Đăng Ký</a>
+        </div>
+
+        <div id="userProfile" class="user-profile hidden">
+          <img src="/placeholder.svg?height=40&width=40" alt="User Avatar" class="user-avatar">
+          <span id="userName" class="user-name"></span>
+          <div class="dropdown-menu">
+            <a href="#">Tài khoản</a>
+            <a href="#">Đơn hàng</a>
+            <a href="#" id="logoutBtn">Đăng xuất</a>
+          </div>
+        </div>
+
+        <div class="cart-icon" id="cartIcon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="badge" id="cartBadge">0</span>
+        </div>
+      </div>
+
+      <button class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title fade-in">Mua Sắm Thông Minh, Tiết Kiệm Hơn</h1>
+      <p class="hero-subtitle fade-in" style="animation-delay: 0.2s;">
+        Khám phá hàng ngàn sản phẩm chất lượng cao với giá tốt nhất
+      </p>
+      <a href="#products" class="btn btn-primary btn-lg fade-in" style="animation-delay: 0.4s;">
+        Khám Phá Sản Phẩm
+      </a>
+    </div>
+  </section>
+
+  <section class="section" id="products">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2>Sản Phẩm Nổi Bật</h2>
+        <p>Các sản phẩm được yêu thích nhất từ cửa hàng</p>
+      </div>
+
+      <div class="grid-products" id="productGrid">
+        <!-- JavaScript sẽ render products vào đây -->
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact-section" id="contact">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2>Liên Hệ Chúng Tôi</h2>
+        <p>Có câu hỏi? Hãy liên hệ với chúng tôi</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <h4>Email</h4>
+          <p>support@market.com</p>
+        </div>
+        <div class="contact-item">
+          <h4>Điện Thoại</h4>
+          <p>+84 123 456 789</p>
+        </div>
+        <div class="contact-item">
+          <h4>Địa Chỉ</h4>
+          <p>Hà Nội, Việt Nam</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Market</h4>
+          <p>Nền tảng mua sắm online hàng đầu Việt Nam</p>
+        </div>
+        <div class="footer-section">
+          <h4>Chính Sách</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Điều khoản dịch vụ</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Hỗ Trợ</h4>
+          <ul>
+            <li><a href="#">Trợ giúp</a></li>
+            <li><a href="#">Liên hệ</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Market. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

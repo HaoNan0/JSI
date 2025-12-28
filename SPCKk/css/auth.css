@@ -1,0 +1,262 @@
+/* ============================================
+   AUTH PAGE STYLES
+   Đăng ký, Đăng nhập, Reset Password
+   ============================================ */
+
+/* AUTH PAGE BACKGROUND
+   Lý do: Gradient background, smooth color transition
+   Tạo cảm giác depth, không flat
+*/
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
+  overflow: hidden;
+}
+
+/* AUTH CONTAINER
+   Flexbox center: form nằm giữa màn hình
+   Responsive width: 400px desktop, 90% mobile
+*/
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--spacing-lg);
+}
+
+/* AUTH FORM - Glass Panel
+   Lý do: Glassmorphism - kính mờ hiện đại
+   Border, blur effect, shadow tạo depth
+*/
+.auth-form {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.auth-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* LOGO TEXT
+   Lý do: Typography hiện đại, gradient color
+   Brand identity, dễ nhớ
+*/
+.logo-text {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--spacing-sm);
+}
+
+.auth-header p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* PASSWORD INPUT WRAPPER
+   Lý do: Container cho input + eye icon
+   Position relative: Eye icon absolute positioning
+*/
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+/* EYE ICON BUTTON
+   Lý do: Toggle password visibility
+   Position: Absolute right, tidak chiếm space
+   Style: Transparent background, hover effect
+*/
+.eye-icon {
+  position: absolute;
+  right: var(--spacing-md);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: var(--spacing-sm);
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-icon:hover {
+  opacity: 0.7;
+  transform: scale(1.1);
+}
+
+/* PASSWORD STRENGTH BAR
+   Lý do: Visual feedback cho độ mạnh mật khẩu
+   HTML: outer container, inner bar để animate width
+*/
+.password-strength-bar {
+  height: 4px;
+  background-color: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.strength-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  background-color: transparent;
+}
+
+/* Password strength colors */
+.strength-bar.weak {
+  width: 33%;
+  background-color: var(--danger);
+}
+
+.strength-bar.medium {
+  width: 66%;
+  background-color: var(--warning);
+}
+
+.strength-bar.strong {
+  width: 100%;
+  background-color: var(--success);
+}
+
+/* STRENGTH TEXT
+   Lý do: Text feedback "Yếu", "Trung bình", "Mạnh"
+   Position right, font nhỏ
+*/
+.strength-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.strength-text.weak {
+  color: var(--danger);
+}
+
+.strength-text.medium {
+  color: var(--warning);
+}
+
+.strength-text.strong {
+  color: var(--success);
+}
+
+.password-label-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* CHECKBOX GROUP
+   Lý do: Custom checkbox styling
+   Tạo checkbox nhỏ gọn, dễ thao tác
+*/
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.checkbox-label {
+  margin: 0;
+  font-weight: 400;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.checkbox-label a {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.checkbox-label a:hover {
+  text-decoration: underline;
+}
+
+/* FULL WIDTH BUTTON */
+.btn-full {
+  width: 100%;
+  margin-bottom: var(--spacing-lg);
+}
+
+/* AUTH FOOTER
+   Lý do: Link redirect sang trang đăng nhập/đăng ký
+   Text nhỏ, không nổi bật quá
+*/
+.auth-footer {
+  text-align: center;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-footer p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.auth-footer a {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Added logo link styling for homepage navigation */
+.auth-logo-link {
+  text-decoration: none;
+  display: block;
+  margin-bottom: var(--spacing-md);
+}
+
+.auth-logo-link:hover {
+  text-decoration: none;
+}
+
+.auth-logo-link .logo-text {
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-logo-link:hover .logo-text {
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .auth-container {
+    max-width: 100%;
+    padding: var(--spacing-md);
+  }
+
+  .logo-text {
+    font-size: 1.75rem;
+  }
+
+  .auth-form {
+    padding: var(--spacing-lg) var(--spacing-md) !important;
+  }
+}

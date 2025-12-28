@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập - Market</title>
+  <!-- Updated title to Market -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="glass-panel auth-form">
+      <!-- Added logo link to homepage -->
+      <a href="index.html" class="auth-logo-link">
+        <h1 class="logo-text fade-in">Market</h1>
+      </a>
+      <div class="auth-header text-center">
+        <p>Đăng nhập vào tài khoản</p>
+      </div>
+
+      <form id="loginForm" class="form-group">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input 
+            type="email" 
+            id="loginEmail" 
+            placeholder="your@email.com" 
+            required
+          >
+          <span class="error" id="loginEmailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Mật Khẩu</label>
+          <div class="password-input-wrapper">
+            <input 
+              type="password" 
+              id="loginPassword" 
+              placeholder="Nhập mật khẩu" 
+              required
+            >
+            <button type="button" class="eye-icon" id="toggleLoginPassword">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <span class="error" id="loginPasswordError"></span>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="rememberMe">
+          <label for="rememberMe" class="checkbox-label">
+            Ghi nhớ tài khoản này
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          Đăng Nhập
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK initialization -->
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>

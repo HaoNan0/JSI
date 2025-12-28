@@ -1,0 +1,486 @@
+/* ============================================
+   PRODUCT DETAIL PAGE STYLES
+   Gallery, Info, Accordion, Related Products
+   ============================================ */
+
+/* MAIN PRODUCT DETAIL SECTION */
+.product-detail {
+  padding-top: 80px; /* Offset cho sticky header */
+  min-height: 70vh;
+  padding-bottom: var(--spacing-2xl);
+}
+
+/* DETAIL WRAPPER - 2 COLUMNS
+   Lý do: Split layout - Left (gallery), Right (info)
+   Responsive: Stack on mobile
+*/
+.product-detail-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2xl);
+  align-items: start;
+}
+
+/* PRODUCT GALLERY - LEFT COLUMN
+   Lý do: Album ảnh với main + thumbnails
+   Sticky: Main image sticky khi scroll
+*/
+.product-gallery {
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* MAIN IMAGE
+   Lý do: Aspect ratio 1:1, zoom effect, position relative
+   Overflow hidden: Để transform zoom không overflow
+*/
+.gallery-main {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg);
+  background-color: var(--bg-secondary);
+  cursor: zoom-in;
+}
+
+.main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-main:hover .main-image {
+  transform: scale(1.1);
+}
+
+/* ZOOM INDICATOR
+   Lý do: Text nhỏ góc dưới, "Zoom để xem chi tiết"
+   Position: absolute bottom-right
+*/
+.zoom-indicator {
+  position: absolute;
+  bottom: var(--spacing-md);
+  right: var(--spacing-md);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+/* THUMBNAILS
+   Lý do: Multiple ảnh nhỏ, click để thay main
+   Flex wrap: Có thể wrap nếu ảnh nhiều
+*/
+.gallery-thumbnails {
+  display: flex;
+  gap: var(--spacing-md);
+  overflow-x: auto;
+  padding: var(--spacing-sm) 0;
+  scroll-behavior: smooth;
+}
+
+.gallery-thumbnails::-webkit-scrollbar {
+  height: 4px;
+}
+
+.gallery-thumbnails::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 2px;
+}
+
+.gallery-thumbnails::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail.active {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+}
+
+.thumbnail:hover {
+  border-color: var(--primary-color);
+}
+
+/* PRODUCT DETAILS - RIGHT COLUMN
+   Lý do: Flexbox column, spacing giữa sections
+*/
+.product-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* PRODUCT HEADER
+   Lý do: Title + rating
+*/
+.product-header {
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.product-header h1 {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
+  line-height: 1.3;
+}
+
+/* RATING DISPLAY
+   Lý do: Stars + review count
+   Stars: Display ⭐ icons
+*/
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+  font-size: 1rem;
+}
+
+.review-count {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* PRICE SECTION */
+.price-section {
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+}
+
+.price-tag {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+/* STOCK STATUS
+   Lý do: "Còn hàng", "Hết hàng" status
+   Color: Green (available) or Red (out)
+*/
+.stock-status {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  background: var(--success);
+  color: white;
+}
+
+.stock-status.out-of-stock {
+  background: var(--danger);
+}
+
+.save-price {
+  margin: 0;
+  color: var(--warning);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.product-short-desc {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* QUANTITY SELECTOR
+   Lý do: Nút +/- với input number
+   Layout: Label + flexbox input
+*/
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.quantity-selector label {
+  white-space: nowrap;
+  font-weight: 600;
+  margin: 0;
+}
+
+.quantity-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.qty-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover {
+  background: var(--primary-light);
+  color: white;
+}
+
+#quantity {
+  width: 60px;
+  border: none;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  background: white;
+  color: var(--text-primary);
+  padding: 0 var(--spacing-sm);
+}
+
+/* ACTION BUTTONS
+   Lý do: 2 buttons - Add to cart (primary), Buy now (outline)
+   Full width stack
+*/
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.action-buttons .btn-full {
+  width: 100%;
+  margin: 0;
+}
+
+/* ACCORDION - Chi tiết sản phẩm
+   Lý do: Collapse/Expand sections
+   Only 1 active tại 1 thời điểm
+*/
+.accordion {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  margin-top: var(--spacing-lg);
+}
+
+.accordion-item {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+/* ACCORDION HEADER - Click để toggle
+   Lý do: Button header, flexbox between
+   Background: Hover effect
+*/
+.accordion-header {
+  width: 100%;
+  padding: var(--spacing-lg);
+  background: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: var(--transition);
+}
+
+.accordion-header:hover {
+  background: var(--bg-secondary);
+}
+
+/* ACCORDION ICON - Arrow animation
+   Lý do: Rotate icon khi active
+   Transform: rotate(180deg) when open
+*/
+.accordion-icon {
+  transition: transform 0.3s ease;
+  font-size: 0.75rem;
+}
+
+.accordion-item.active .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* ACCORDION CONTENT
+   Lý do: Content wrapper, max-height animation
+   Initially: height 0, overflow hidden
+   Active: height auto
+*/
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 1000px;
+}
+
+.accordion-content {
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.accordion-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.accordion-content ul li {
+  padding: var(--spacing-sm) 0;
+  padding-left: var(--spacing-lg);
+  position: relative;
+}
+
+.accordion-content ul li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: bold;
+}
+
+/* SPECS TABLE */
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.specs-table tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.specs-table tr:last-child {
+  border-bottom: none;
+}
+
+.specs-table td {
+  padding: var(--spacing-md);
+}
+
+.specs-table td:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+  width: 30%;
+}
+
+.specs-table td:last-child {
+  color: var(--text-secondary);
+}
+
+/* RELATED PRODUCTS SECTION */
+.related-products {
+  background: var(--bg-secondary);
+  margin-top: var(--spacing-2xl);
+}
+
+.section-title {
+  margin-bottom: var(--spacing-xl);
+  font-size: 1.75rem;
+  text-align: center;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 1024px) {
+  .product-detail-wrapper {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+
+  .product-gallery {
+    position: relative;
+    top: auto;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .price {
+    font-size: 1.5rem;
+  }
+
+  .gallery-thumbnails {
+    gap: var(--spacing-sm);
+  }
+
+  .thumbnail {
+    width: 60px;
+    height: 60px;
+  }
+
+  .quantity-input {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-detail {
+    padding-top: 60px;
+  }
+
+  .product-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .price {
+    font-size: 1.25rem;
+  }
+
+  .accordion-header {
+    padding: var(--spacing-md);
+  }
+
+  .accordion-content {
+    padding: var(--spacing-md);
+  }
+}

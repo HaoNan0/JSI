@@ -1,0 +1,533 @@
+/* ============================================
+   GLOBAL CSS FRAMEWORK
+   Thiết kế: Màu lạnh, Glassmorphism, Responsive
+   ============================================ */
+
+/* RESET & BASE */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Palette Màu Lạnh (Cold Color Palette)
+   - Primary: Cyan/Blue lạnh cho brand
+   - Secondary: Gray nhạt cho background
+   - Accent: Xanh đậm cho nút hành động
+   Lý do: Màu lạnh tạo cảm giác hiện đại, tin cậy, chuyên nghiệp
+*/
+:root {
+  --primary-color: #0ea5e9; /* Sky Blue - nút chính */
+  --primary-dark: #0284c7; /* Darker Sky Blue */
+  --primary-light: #7dd3fc; /* Light Sky Blue */
+
+  --secondary-color: #06b6d4; /* Cyan - accent */
+  --secondary-dark: #0891b2; /* Darker Cyan */
+
+  --bg-primary: #f0f9ff; /* Very Light Blue */
+  --bg-secondary: #e0f2fe; /* Light Blue */
+  --bg-tertiary: #cffafe; /* Very Light Cyan */
+
+  --text-primary: #0c3d66; /* Dark Blue - text */
+  --text-secondary: #164e63; /* Medium Dark Blue */
+  --text-light: #06b6d4; /* Cyan - secondary text */
+
+  --border-color: #bae6fd; /* Light Blue border */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  --border-radius: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 20px;
+
+  --transition: all 0.3s ease;
+  --transition-fast: all 0.15s ease;
+}
+
+html,
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  line-height: 1.6;
+}
+
+/* TYPOGRAPHY */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.75rem;
+}
+h4 {
+  font-size: 1.5rem;
+}
+h5 {
+  font-size: 1.25rem;
+}
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* GLASSMORPHISM COMPONENT
+   Lý do: Tạo hiệu ứng kính mờ hiện đại, layer độ trong suốt
+   Ứng dụng: Form, Card, Modal
+*/
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* FLEXBOX LAYOUT
+   Lý do: Flexbox là phương pháp tối ưu cho layout responsive
+   Giúp căn chỉnh, phân phối không gian dễ dàng
+*/
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.flex-gap-sm {
+  gap: var(--spacing-sm);
+}
+.flex-gap-md {
+  gap: var(--spacing-md);
+}
+.flex-gap-lg {
+  gap: var(--spacing-lg);
+}
+
+/* GRID LAYOUT
+   Lý do: Grid 4 cột thích hợp cho hiển thị sản phẩm
+   Responsive: tự động giảm số cột trên mobile
+*/
+.grid-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
+}
+
+/* BUTTONS - Base Styles */
+button,
+.btn {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+/* PRIMARY BUTTON
+   Lý do: Nút hành động chính với màu primary (Sky Blue)
+   Hiệu ứng hover: Tăng shadow, tô đậm màu
+*/
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* SECONDARY BUTTON */
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-dark);
+  transform: translateY(-2px);
+}
+
+/* OUTLINE BUTTON
+   Lý do: Nút phụ với border thay vì background đặc
+   Giảm visual weight, tạo sự phân cấp rõ ràng
+*/
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+  background-color: var(--bg-secondary);
+  color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* FORM ELEMENTS */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+  background-color: white;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+/* INPUT FOCUS EFFECT
+   Lý do: Khi focus vào input, glow màu primary
+   Cải thiện UX: hiện rõ trường đang được chỉnh sửa
+*/
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+/* LABEL STYLING */
+label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* ERROR MESSAGE
+   Lý do: Hiển thị lỗi validation với màu đỏ
+   Giúp người dùng nhận biết vấn đề ngay lập tức
+*/
+.error {
+  color: var(--danger);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-xs);
+}
+
+.input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* SUCCESS MESSAGE */
+.success {
+  color: var(--success);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-xs);
+}
+
+/* FADE-IN ANIMATION
+   Lý do: Làm chữ/phần tử xuất hiện từ từ
+   Tạo hiệu ứng chuyên nghiệp, không bộ
+*/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* SLIDE-IN ANIMATION */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-out forwards;
+}
+
+/* SCALE-UP ANIMATION */
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scale-up {
+  animation: scaleUp 0.4s ease-out forwards;
+}
+
+/* HOVER ZOOM EFFECT
+   Lý do: Ảnh sản phẩm zoom nhẹ khi hover
+   Tạo tương tác, kích thích click
+*/
+.img-hover-zoom {
+  overflow: hidden;
+  border-radius: var(--border-radius);
+}
+
+.img-hover-zoom img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.img-hover-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* CARD COMPONENT
+   Lý do: Wrapper chung cho tất cả card (sản phẩm, đơn hàng)
+   Giúp UI nhất quán, dễ bảo trì
+*/
+.card {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-light);
+}
+
+/* BADGE
+   Lý do: Hiển thị số lượng sản phẩm trong giỏ hàng
+   Nhỏ gọn, dễ nhìn thấy
+*/
+.badge {
+  background-color: var(--danger);
+  color: white;
+  border-radius: 50%;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+/* CONTAINER - Giới hạn width tối đa */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* SECTION - Spacing giữa các section */
+.section {
+  padding: var(--spacing-2xl) 0;
+}
+
+/* RESPONSIVE MEDIA QUERIES
+   Lý do: Thiết kế mobile-first, tối ưu trên các màn hình nhỏ
+*/
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  .grid-products {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  button,
+  .btn {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 0.95rem;
+  }
+
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  .grid-products {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: var(--spacing-xl) 0;
+  }
+}
+
+/* UTILITY CLASSES */
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.mt-sm {
+  margin-top: var(--spacing-sm);
+}
+.mt-md {
+  margin-top: var(--spacing-md);
+}
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+.hidden {
+  display: none;
+}
+.opacity-50 {
+  opacity: 0.5;
+}
+.opacity-75 {
+  opacity: 0.75;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Added animation keyframes for toast notifications */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Button size variants */
+.btn-sm {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  font-size: 1.125rem;
+}

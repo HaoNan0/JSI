@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ Hàng - Market</title>
+  <!-- Lý do: Trang giỏ hàng để hiển thị sản phẩm đã thêm -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/cart.css">
+</head>
+<body>
+  <!-- HEADER - Sticky header giống trang chủ -->
+  <header class="header sticky-header">
+    <div class="container header-content">
+      <div class="header-left">
+        <a href="index.html" style="text-decoration: none; color: inherit;">
+          <h1 class="logo">Market</h1>
+        </a>
+      </div>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="nav-link">Trang Chủ</a>
+        <a href="index.html#products" class="nav-link">Sản Phẩm</a>
+        <a href="cart.html" class="nav-link active">Giỏ Hàng</a>
+      </nav>
+
+      <div class="header-right">
+        <div id="authButtons" class="auth-buttons">
+          <a href="login.html" class="btn btn-outline btn-sm">Đăng Nhập</a>
+          <a href="register.html" class="btn btn-primary btn-sm">Đăng Ký</a>
+        </div>
+
+        <div id="userProfile" class="user-profile hidden">
+          <img src="/placeholder.svg?height=40&width=40" alt="User Avatar" class="user-avatar">
+          <span id="userName" class="user-name"></span>
+          <div class="dropdown-menu">
+            <a href="#">Tài khoản</a>
+            <a href="#">Đơn hàng</a>
+            <a href="#" id="logoutBtn">Đăng xuất</a>
+          </div>
+        </div>
+
+        <div class="cart-icon" id="cartIcon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="badge" id="cartBadge">0</span>
+        </div>
+      </div>
+
+      <button class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CART CONTENT
+       Lý do: Container chính hiển thị giỏ hàng
+       Layout: 2 cột - Cart items + Summary sidebar
+  -->
+  <section class="cart-section">
+    <div class="container">
+      <div class="cart-header">
+        <h1>Giỏ Hàng Của Bạn</h1>
+        <p id="cartItemCount">0 sản phẩm</p>
+      </div>
+
+      <!-- CART LAYOUT
+           Lý do: 2 cột - Left: Items, Right: Summary
+           Responsive: Stack trên mobile
+      -->
+      <div class="cart-layout">
+        <!-- LEFT: CART ITEMS LIST -->
+        <div class="cart-items-container">
+          <!-- EMPTY STATE
+               Lý do: Hiển thị khi giỏ hàng trống
+          -->
+          <div id="emptyCart" class="empty-cart hidden">
+            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <h3>Giỏ hàng trống</h3>
+            <p>Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm!</p>
+            <a href="index.html#products" class="btn btn-primary">Khám Phá Sản Phẩm</a>
+          </div>
+
+          <!-- CART ITEMS
+               Lý do: Danh sách sản phẩm trong giỏ
+               Mỗi item: Image, Name, Price, Quantity, Remove button
+          -->
+          <div id="cartItemsList" class="cart-items-list">
+            <!-- JavaScript sẽ render items vào đây -->
+          </div>
+        </div>
+
+        <!-- RIGHT: CART SUMMARY
+             Lý do: Tổng tiền, phí vận chuyển, thanh toán
+             Sticky: Cố định khi scroll (desktop)
+        -->
+        <div class="cart-summary">
+          <div class="summary-card">
+            <h3>Tóm Tắt Đơn Hàng</h3>
+            
+            <div class="summary-row">
+              <span>Tạm tính:</span>
+              <span id="subtotal">₫0</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Phí vận chuyển:</span>
+              <span id="shipping">₫30.000</span>
+            </div>
+            
+            <div class="summary-divider"></div>
+            
+            <div class="summary-row summary-total">
+              <span>Tổng cộng:</span>
+              <span id="total">₫0</span>
+            </div>
+            
+            <button class="btn btn-primary btn-full" id="checkoutBtn">
+              Tiến Hành Thanh Toán
+            </button>
+            
+            <a href="index.html#products" class="continue-shopping">
+              ← Tiếp tục mua sắm
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Market</h4>
+          <p>Nền tảng mua sắm online hàng đầu Việt Nam</p>
+        </div>
+        <div class="footer-section">
+          <h4>Chính Sách</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Điều khoản dịch vụ</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Hỗ Trợ</h4>
+          <ul>
+            <li><a href="#">Trợ giúp</a></li>
+            <li><a href="#">Liên hệ</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Market. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script src="js/cart.js"></script>
+</body>
+</html>

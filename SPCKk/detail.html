@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi Tiết Sản Phẩm - ShopX</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/detail.css">
+</head>
+<body>
+  <!-- REUSE HEADER from home.html -->
+  <header class="header sticky-header">
+    <div class="container header-content">
+      <div class="header-left">
+        <a href="index.html" class="logo">ShopX</a>
+      </div>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html#" class="nav-link">Giới Thiệu</a>
+        <a href="index.html#products" class="nav-link">Sản Phẩm</a>
+        <a href="index.html#contact" class="nav-link">Liên Hệ</a>
+      </nav>
+      <div class="header-right">
+        <div id="authButtons" class="auth-buttons">
+          <a href="login.html" class="btn btn-outline btn-sm">Đăng Nhập</a>
+          <a href="register.html" class="btn btn-primary btn-sm">Đăng Ký</a>
+        </div>
+        <div id="userProfile" class="user-profile hidden">
+          <img src="/placeholder.svg?height=40&width=40" alt="User Avatar" class="user-avatar">
+          <span id="userName" class="user-name"></span>
+          <div class="dropdown-menu">
+            <a href="#">Tài khoản</a>
+            <a href="#">Đơn hàng</a>
+            <a href="#" id="logoutBtn">Đăng xuất</a>
+          </div>
+        </div>
+        <div class="cart-icon" id="cartIcon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="badge" id="cartBadge">0</span>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN PRODUCT SECTION
+       Layout: Split 2 columns - Left: Images, Right: Info
+       Responsive: Stack on mobile
+  -->
+  <main class="product-detail">
+    <div class="container">
+      <div class="product-detail-wrapper">
+        <!-- LEFT COLUMN: PRODUCT IMAGE GALLERY
+             Lý do: Album ảnh sản phẩm
+             Main image + Thumbnails, click thumbnail để change main
+        -->
+        <div class="product-gallery">
+          <!-- MAIN IMAGE
+               Display: Large image, zoom effect khi hover
+               ID: gallery-main để update từ JS
+          -->
+          <div class="gallery-main">
+            <img id="galleryMain" src="/placeholder.svg?height=500&width=500" alt="Product Image" class="main-image">
+            <!-- ZOOM INDICATOR
+                 Text nhỏ góc dưới để hiện "Zoom để xem chi tiết"
+            -->
+            <div class="zoom-indicator">Zoom để xem chi tiết</div>
+          </div>
+
+          <!-- THUMBNAILS
+               Lý do: Multiple ảnh, click để thay main image
+               Scroll horizontal: Có thể scroll nếu ảnh nhiều
+          -->
+          <div class="gallery-thumbnails" id="galleryThumbnails">
+            <!-- JS sẽ render thumbnails -->
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: PRODUCT INFORMATION
+             Lý do: Tất cả info sản phẩm nằm bên phải
+             Flexbox column: Stack từ trên xuống
+        -->
+        <div class="product-details">
+          <!-- PRODUCT TITLE & RATING -->
+          <div class="product-header">
+            <h1 id="productName"></h1>
+            <div class="product-rating">
+              <div class="stars" id="productRating"></div>
+              <span class="review-count" id="reviewCount"></span>
+            </div>
+          </div>
+
+          <!-- PRICE SECTION
+               Display: Lớn, màu primary
+               Format: 1.000.000 VNĐ
+          -->
+          <div class="price-section">
+            <div class="price-tag">
+              <span class="price" id="productPrice"></span>
+              <span class="stock-status" id="stockStatus"></span>
+            </div>
+            <p class="save-price" id="savePrice"></p>
+          </div>
+
+          <!-- PRODUCT DESCRIPTION - SHORT -->
+          <p id="productDescription" class="product-short-desc"></p>
+
+          <!-- QUANTITY SELECTOR
+               Lý do: Nút +/- để chọn số lượng
+               Min: 1, Max: stock
+               Display: Nút button hoặc input number
+          -->
+          <div class="quantity-selector">
+            <label for="quantity">Số Lượng:</label>
+            <div class="quantity-input">
+              <button type="button" class="qty-btn" id="qtyDecrease">−</button>
+              <input 
+                type="number" 
+                id="quantity" 
+                value="1" 
+                min="1" 
+                max="100" 
+                readonly
+              >
+              <button type="button" class="qty-btn" id="qtyIncrease">+</button>
+            </div>
+          </div>
+
+          <!-- ACTION BUTTONS
+               Lý do: 2 CTA buttons - Add to cart, Buy now
+               Primary: Add to cart (blue)
+               Secondary: Buy now (outline)
+          -->
+          <div class="action-buttons">
+            <button class="btn btn-primary btn-lg btn-full" id="addToCartBtn">
+              Thêm Vào Giỏ Hàng
+            </button>
+            <button class="btn btn-outline btn-lg btn-full">
+              Mua Ngay
+            </button>
+          </div>
+
+          <!-- PRODUCT FEATURES - Accordion
+               Lý do: Accordion để ẩn/hiện chi tiết dài
+               Click header để toggle content
+               Only 1 accordion active cùng lúc
+          -->
+          <div class="accordion">
+            <!-- ACCORDION ITEM 1: Mô Tả Chi Tiết -->
+            <div class="accordion-item">
+              <button class="accordion-header" id="accordionDescBtn">
+                <span>Mô Tả Chi Tiết</span>
+                <span class="accordion-icon">▼</span>
+              </button>
+              <div class="accordion-content" id="accordionDesc">
+                <div id="productFullDesc"></div>
+              </div>
+            </div>
+
+            <!-- ACCORDION ITEM 2: Thông Số Kỹ Thuật -->
+            <div class="accordion-item">
+              <button class="accordion-header" id="accordionSpecsBtn">
+                <span>Thông Số Kỹ Thuật</span>
+                <span class="accordion-icon">▼</span>
+              </button>
+              <div class="accordion-content" id="accordionSpecs">
+                <table class="specs-table" id="specsTable"></table>
+              </div>
+            </div>
+
+            <!-- ACCORDION ITEM 3: Chính Sách Đổi Trả -->
+            <div class="accordion-item">
+              <button class="accordion-header" id="accordionPolicyBtn">
+                <span>Chính Sách Đổi Trả</span>
+                <span class="accordion-icon">▼</span>
+              </button>
+              <div class="accordion-content" id="accordionPolicy">
+                <ul>
+                  <li>Đổi trả trong 30 ngày nếu lỗi sản xuất</li>
+                  <li>Hoàn lại toàn bộ tiền nếu không hài lòng</li>
+                  <li>Miễn phí vận chuyển đổi trả</li>
+                  <li>Hỗ trợ tư vấn miễn phí 24/7</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RELATED PRODUCTS SECTION
+       Lý do: Gợi ý sản phẩm liên quan
+       Scroll horizontal hoặc grid 4 cột
+  -->
+  <section class="section related-products">
+    <div class="container">
+      <h2 class="section-title">Sản Phẩm Liên Quan</h2>
+      <div class="grid-products" id="relatedProducts">
+        <!-- JS sẽ render products -->
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>ShopX</h4>
+          <p>Nền tảng mua sắm online hàng đầu Việt Nam</p>
+        </div>
+        <div class="footer-section">
+          <h4>Chính Sách</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Điều khoản dịch vụ</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Hỗ Trợ</h4>
+          <ul>
+            <li><a href="#">Trợ giúp</a></li>
+            <li><a href="#">Liên hệ</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 ShopX. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/detail.js"></script>
+</body>
+</html>

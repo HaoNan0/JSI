@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Ký - Market</title>
+  <!-- Updated title to Market -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="glass-panel auth-form">
+      <!-- Added logo link to homepage -->
+      <a href="index.html" class="auth-logo-link">
+        <h1 class="logo-text fade-in">Market</h1>
+      </a>
+      <div class="auth-header text-center">
+        <p>Tạo tài khoản mới</p>
+      </div>
+
+      <form id="registerForm" class="form-group">
+        <!-- Added name field for Firebase user profile -->
+        <div class="form-group">
+          <label for="name">Họ và Tên</label>
+          <input 
+            type="text" 
+            id="name" 
+            placeholder="Nguyễn Văn A" 
+            required
+          >
+          <span class="error" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            placeholder="your@email.com" 
+            required
+          >
+          <span class="error" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+          <div class="password-label-wrapper">
+            <label for="password">Mật Khẩu</label>
+            <span class="strength-text" id="strengthText"></span>
+          </div>
+          <div class="password-input-wrapper">
+            <!-- Updated placeholder to require 8+ characters -->
+            <input 
+              type="password" 
+              id="password" 
+              placeholder="Mật khẩu (tối thiểu 8 ký tự)" 
+              required
+              minlength="8"
+            >
+            <button type="button" class="eye-icon" id="togglePassword">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="password-strength-bar">
+            <div class="strength-bar" id="strengthBar"></div>
+          </div>
+          <span class="error" id="passwordError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Xác Nhận Mật Khẩu</label>
+          <div class="password-input-wrapper">
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              placeholder="Nhập lại mật khẩu" 
+              required
+            >
+            <button type="button" class="eye-icon" id="toggleConfirm">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <span class="error" id="confirmError"></span>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="terms" required>
+          <label for="terms" class="checkbox-label">
+            Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          Đăng Ký
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK - Initialize for authentication -->
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>
