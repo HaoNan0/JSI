@@ -161,8 +161,44 @@ function setupSidebar() {
       if (section) {
         section.classList.add("active")
       }
+
+      // Close sidebar on mobile after selecting a link
+      const sidebar = document.querySelector(".admin-sidebar")
+      const hamburger = document.getElementById("sidebarToggle")
+      if (window.innerWidth <= 768 && sidebar && hamburger) {
+        sidebar.classList.remove("active")
+        hamburger.classList.remove("active")
+      }
     })
   })
+}
+
+// HAMBURGER MENU TOGGLE (Mobile)
+// Lý do: Toggle sidebar visibility on mobile
+function setupHamburgerMenu() {
+  const hamburger = document.getElementById("sidebarToggle")
+  const sidebar = document.querySelector(".admin-sidebar")
+
+  if (hamburger && sidebar) {
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.toggle("active")
+      hamburger.classList.toggle("active")
+    })
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener("click", (e) => {
+      if (window.innerWidth <= 768) {
+        if (
+          sidebar.classList.contains("active") &&
+          !sidebar.contains(e.target) &&
+          !hamburger.contains(e.target)
+        ) {
+          sidebar.classList.remove("active")
+          hamburger.classList.remove("active")
+        }
+      }
+    })
+  }
 }
 
 // LOGOUT
@@ -715,6 +751,7 @@ function setupCloudinaryUpload() {
 window.addEventListener("load", () => {
   checkAdminAuth()
   setupSidebar()
+  setupHamburgerMenu()
   setupLogout()
   setupProductModal()
   setupOrderFilters()

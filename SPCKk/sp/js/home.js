@@ -268,9 +268,15 @@ function checkAuthStatus() {
     const logoutBtn = document.getElementById("logoutBtn")
 
     if (user) {
-      // USER LOGGED IN
-      authButtons?.classList.add("hidden")
-      userProfile?.classList.remove("hidden")
+      // USER LOGGED IN - Hide auth buttons, show profile
+      if (authButtons) {
+        authButtons.style.display = "none"
+        authButtons.classList.add("hidden")
+      }
+      if (userProfile) {
+        userProfile.style.display = "flex"
+        userProfile.classList.remove("hidden")
+      }
       if (userName) {
         userName.textContent = user.displayName || user.email
       }
@@ -287,10 +293,29 @@ function checkAuthStatus() {
           }
         }
       }
+
+      // Auto-scroll to products section if coming from login
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get("from") === "login") {
+        setTimeout(() => {
+          const productsSection = document.getElementById("products")
+          if (productsSection) {
+            productsSection.scrollIntoView({ behavior: "smooth", block: "start" })
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname)
+          }
+        }, 500)
+      }
     } else {
-      // USER NOT LOGGED IN
-      authButtons?.classList.remove("hidden")
-      userProfile?.classList.add("hidden")
+      // USER NOT LOGGED IN - Show auth buttons, hide profile
+      if (authButtons) {
+        authButtons.style.display = "flex"
+        authButtons.classList.remove("hidden")
+      }
+      if (userProfile) {
+        userProfile.style.display = "none"
+        userProfile.classList.add("hidden")
+      }
     }
   })
 }

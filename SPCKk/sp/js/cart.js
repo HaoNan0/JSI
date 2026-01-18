@@ -25,6 +25,20 @@ function loadCart() {
       cart = []
     }
   }
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:27',message:'loadCart: cart array after parse',data:{cartLength:cart.length,cartItems:cart.map((item,idx)=>({index:idx,hasProductId:!!item.productId,hasName:!!item.name,hasPrice:!!item.price,hasImage:!!item.image,hasQuantity:!!item.quantity,priceType:typeof item.price,priceValue:item.price,allKeys:Object.keys(item)})),rawCart:cart},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
+  // Clean up: Remove incomplete items (missing required properties from old localStorage data)
+  const initialLength = cart.length
+  cart = cart.filter(item => item.price && item.name && item.image)
+  if (cart.length < initialLength) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:32',message:'loadCart: removed incomplete items',data:{initialLength:initialLength,cleanedLength:cart.length,removed:initialLength-cart.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    saveCart() // Save cleaned cart back to localStorage
+  }
+  
   renderCart()
   updateCartBadge()
 }
@@ -39,7 +53,9 @@ function saveCart() {
 // UPDATE CART BADGE
 // Lý do: Hiển thị số lượng items trong icon giỏ hàng
 function updateCartBadge() {
-  const total = cart.reduce((sum, item) => sum + item.quantity, 0)
+  // Only count valid items (with all required properties)
+  const validCart = cart.filter(item => item.price && item.name && item.image)
+  const total = validCart.reduce((sum, item) => sum + item.quantity, 0)
   const badge = document.getElementById("cartBadge")
   if (badge) {
     badge.textContent = total
@@ -64,12 +80,29 @@ function renderCart() {
 
   // Hide empty state
   emptyCart.classList.add("hidden")
-  cartItemCount.textContent = `${cart.length} sản phẩm`
+  // Only count valid items (with all required properties)
+  const validCart = cart.filter(item => item.price && item.name && item.image)
+  cartItemCount.textContent = `${validCart.length} sản phẩm`
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:70',message:'renderCart: before map - cart structure',data:{cartLength:cart.length,validCartLength:validCart.length,items:cart.map((item,idx)=>({index:idx,keys:Object.keys(item),productId:item.productId,name:item.name,price:item.price,image:item.image,quantity:item.quantity,isValid:!!(item.price&&item.name&&item.image)}))},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
 
   // Render cart items
   itemsList.innerHTML = cart
     .map(
-      (item, index) => `
+      (item, index) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:72',message:'renderCart: map item before toLocaleString',data:{index:index,item:item,hasPrice:!!item.price,priceType:typeof item.price,priceValue:item.price,allKeys:Object.keys(item)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        // Safeguard: Skip rendering items missing required properties (from old localStorage data)
+        if (!item.price || !item.name || !item.image) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:75',message:'renderCart: skipping incomplete item',data:{index:index,item:item,missingPrice:!item.price,missingName:!item.name,missingImage:!item.image},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
+          return '' // Return empty string to skip rendering this item
+        }
+        return `
     <div class="cart-item" data-index="${index}">
       <div class="cart-item-image">
         <img src="${item.image}" alt="${item.name}">
@@ -93,7 +126,8 @@ function renderCart() {
         </button>
       </div>
     </div>
-  `,
+  `;
+      }
     )
     .join("")
 
@@ -137,12 +171,14 @@ window.removeItem = (index) => {
 // UPDATE SUMMARY
 // Lý do: Tính tổng tiền, phí ship, tổng cuối
 function updateSummary() {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = cart.length > 0 ? SHIPPING_FEE : 0
+  // Filter out incomplete items (missing price) when calculating totals
+  const validCart = cart.filter(item => item.price && item.name && item.image)
+  const subtotal = validCart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const shipping = validCart.length > 0 ? SHIPPING_FEE : 0
   const total = subtotal + shipping
 
   document.getElementById("subtotal").textContent = `₫${subtotal.toLocaleString("vi-VN")}`
-  document.getElementById("shipping").textContent = cart.length > 0 ? `₫${shipping.toLocaleString("vi-VN")}` : "₫0"
+  document.getElementById("shipping").textContent = validCart.length > 0 ? `₫${shipping.toLocaleString("vi-VN")}` : "₫0"
   document.getElementById("total").textContent = `₫${total.toLocaleString("vi-VN")}`
 }
 

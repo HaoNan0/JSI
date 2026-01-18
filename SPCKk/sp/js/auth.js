@@ -339,7 +339,8 @@ if (document.getElementById("loginForm")) {
         if (userData?.role === "admin") {
           window.location.href = "admin.html"
         } else {
-          window.location.href = "index.html"
+          // Redirect to products section on homepage
+          window.location.href = "index.html?from=login#products"
         }
       }, 1000)
     } catch (error) {
