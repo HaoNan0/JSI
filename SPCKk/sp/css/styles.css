@@ -161,9 +161,16 @@ a:hover {
 */
 .grid-products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-xl);
   margin: var(--spacing-xl) 0;
+  padding: var(--spacing-md) 0;
+}
+
+@media (min-width: 1200px) {
+  .grid-products {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 /* BUTTONS - Base Styles */

@@ -4,6 +4,11 @@
    Quản lý: Products, Orders, Users, Categories
    ============================================ */
 
+// IMPORT FIREBASE
+import { auth, db } from "./firebase-config.js"
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+import { doc, getDoc, collection, addDoc, updateDoc, deleteDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+
 // CLOUDINARY CONFIG
 // Lý do: Credentials cho Cloudinary upload widget
 // User cần thay YOUR_CLOUD_NAME và YOUR_UPLOAD_PRESET
@@ -102,20 +107,37 @@ let editingProductId = null
 
 // CHECK ADMIN AUTH
 // Lý do: Chỉ admin mới có quyền truy cập trang này
+// Sử dụng Firebase Auth thay vì localStorage
 function checkAdminAuth() {
-  const token = localStorage.getItem("auth_token")
-  const user = localStorage.getItem("user")
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // User not logged in, redirect to login
+      window.location.href = "login.html"
+      return
+    }
 
-  if (!token || !user) {
-    window.location.href = "login.html"
-    return
-  }
+    // Check user role in Firestore
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid))
+      const userData = userDoc.data()
 
-  const userData = JSON.parse(user)
-  if (userData.role !== "admin") {
-    alert("Bạn không có quyền truy cập!")
-    window.location.href = "index.html"
-  }
+      if (!userData || userData.role !== "admin") {
+        alert("Bạn không có quyền truy cập trang admin!")
+        window.location.href = "index.html"
+        return
+      }
+
+      // Update admin profile name in UI
+      const profileName = document.querySelector(".profile-name")
+      if (profileName) {
+        profileName.textContent = userData.name || user.email || "Admin User"
+      }
+    } catch (error) {
+      console.error("Error checking admin auth:", error)
+      alert("Lỗi kiểm tra quyền truy cập!")
+      window.location.href = "login.html"
+    }
+  })
 }
 
 // SIDEBAR NAVIGATION
@@ -144,15 +166,19 @@ function setupSidebar() {
 }
 
 // LOGOUT
-// Lý do: Clear token + redirect
+// Lý do: Firebase sign out + redirect
 function setupLogout() {
   const logoutBtn = document.getElementById("adminLogout")
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
+    logoutBtn.addEventListener("click", async () => {
       if (confirm("Bạn chắc chắn muốn đăng xuất?")) {
-        localStorage.removeItem("auth_token")
-        localStorage.removeItem("user")
-        window.location.href = "login.html"
+        try {
+          await signOut(auth)
+          window.location.href = "login.html"
+        } catch (error) {
+          console.error("Logout error:", error)
+          alert("Lỗi đăng xuất. Vui lòng thử lại!")
+        }
       }
     })
   }
@@ -181,22 +207,49 @@ function renderRecentOrders() {
     .join("")
 }
 
+// LOAD PRODUCTS FROM FIRESTORE
+// Lý do: Load products từ Firestore thay vì mock data
+async function loadProductsFromFirestore() {
+  try {
+    const productsSnapshot = await getDocs(collection(db, "products"))
+    const products = []
+    productsSnapshot.forEach((doc) => {
+      products.push({
+        id: doc.id,
+        ...doc.data(),
+      })
+    })
+    mockProducts.length = 0
+    mockProducts.push(...products)
+    renderProductsTable()
+  } catch (error) {
+    console.error("Error loading products:", error)
+  }
+}
+
 // RENDER PRODUCTS TABLE
 // Lý do: CRUD interface cho products
 function renderProductsTable() {
   const tbody = document.getElementById("productsTableBody")
+  if (!tbody) return
+
+  if (mockProducts.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Chưa có sản phẩm nào</td></tr>'
+    return
+  }
+
   tbody.innerHTML = mockProducts
     .map(
       (product) => `
     <tr>
       <td>${product.id}</td>
       <td>${product.name}</td>
-      <td>${product.category}</td>
-      <td>${product.stock}</td>
-      <td>₫${product.price.toLocaleString("vi-VN")}</td>
+      <td>${product.category || "N/A"}</td>
+      <td>${product.stock || 0}</td>
+      <td>₫${(product.price || 0).toLocaleString("vi-VN")}</td>
       <td>
-        <button class="action-btn" onclick="editProduct(${product.id})">Sửa</button>
-        <button class="action-btn delete" onclick="deleteProduct(${product.id})">Xóa</button>
+        <button class="action-btn" onclick="editProduct('${product.id}')">Sửa</button>
+        <button class="action-btn delete" onclick="deleteProduct('${product.id}')">Xóa</button>
       </td>
     </tr>
   `,
@@ -321,12 +374,8 @@ function setupProductModal() {
   }
 
   if (form) {
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
     e.preventDefault()
-
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin.js:271',message:'Product form submit',data:{editingId:editingProductId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
 
     const name = document.getElementById("productName").value.trim()
     const category = document.getElementById("productCategory").value
@@ -335,52 +384,54 @@ function setupProductModal() {
     const description = document.getElementById("productDescription").value.trim()
     const imageUrl = document.getElementById("productImageUrl").value
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin.js:284',message:'Form data extracted',data:{name,category,price,stock,hasDescription:!!description,hasImage:!!imageUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-
     if (!name || !category || !price || stock === undefined || !imageUrl) {
       alert("Vui lòng điền đầy đủ thông tin!")
       return
     }
 
-    if (editingProductId !== null) {
-      // Edit existing product
-      const productIndex = mockProducts.findIndex((p) => p.id === editingProductId)
-      if (productIndex > -1) {
-        mockProducts[productIndex] = {
-          ...mockProducts[productIndex],
-          name,
-          category,
-          price,
-          stock,
-          description,
-          image: imageUrl,
-        }
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin.js:304',message:'Product updated',data:{id:editingProductId,productIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
-      }
-    } else {
-      // Add new product
-      const newId = mockProducts.length > 0 ? Math.max(...mockProducts.map((p) => p.id)) + 1 : 1
-      mockProducts.push({
-        id: newId,
+    const submitBtn = form.querySelector('button[type="submit"]')
+    submitBtn.disabled = true
+    submitBtn.textContent = "Đang lưu..."
+
+    try {
+      const productData = {
         name,
         category,
         price,
         stock,
-        description,
+        description: description || "",
         image: imageUrl,
-      })
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin.js:317',message:'Product added',data:{id:newId,name,category},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-    }
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
 
-    alert("Sản phẩm đã được lưu!")
-    if (modal) modal.classList.add("hidden")
-    renderProductsTable()
+      if (editingProductId !== null) {
+        // Edit existing product in Firestore
+        const productRef = doc(db, "products", editingProductId)
+        await updateDoc(productRef, {
+          ...productData,
+          updatedAt: new Date().toISOString(),
+        })
+        alert("Sản phẩm đã được cập nhật!")
+      } else {
+        // Add new product to Firestore
+        await addDoc(collection(db, "products"), productData)
+        alert("Sản phẩm đã được thêm thành công!")
+      }
+
+      if (modal) modal.classList.add("hidden")
+      form.reset()
+      document.getElementById("productImagePreview").classList.add("hidden")
+      document.getElementById("productImageUrl").value = ""
+      editingProductId = null
+      await loadProductsFromFirestore()
+    } catch (error) {
+      console.error("Error saving product:", error)
+      alert("Lỗi lưu sản phẩm: " + error.message)
+    } finally {
+      submitBtn.disabled = false
+      submitBtn.textContent = "Lưu"
+    }
     })
   }
 
@@ -396,9 +447,6 @@ function setupProductModal() {
 
 // GLOBAL FUNCTIONS for inline onclick
 window.editProduct = (id) => {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin.js:398',message:'Edit product called',data:{id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
   const modal = document.getElementById("productModal")
   if (!modal) return
   
@@ -406,10 +454,6 @@ window.editProduct = (id) => {
   if (modalTitle) modalTitle.textContent = "Sửa Sản Phẩm"
   
   const product = mockProducts.find((p) => p.id === id)
-  
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin.js:408',message:'Product found for edit',data:{found:!!product,hasCategory:!!product?.category,hasDescription:!!product?.description,hasImage:!!product?.image},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
 
   if (product) {
     editingProductId = id
@@ -442,12 +486,19 @@ window.editProduct = (id) => {
   modal.classList.remove("hidden")
 }
 
-window.deleteProduct = (id) => {
+window.deleteProduct = async (id) => {
   if (confirm("Bạn chắc chắn muốn xóa sản phẩm này?")) {
-    const index = mockProducts.findIndex((p) => p.id === id)
-    if (index > -1) {
-      mockProducts.splice(index, 1)
-      renderProductsTable()
+    try {
+      await deleteDoc(doc(db, "products", id))
+      const index = mockProducts.findIndex((p) => p.id === id)
+      if (index > -1) {
+        mockProducts.splice(index, 1)
+        renderProductsTable()
+      }
+      alert("Sản phẩm đã được xóa!")
+    } catch (error) {
+      console.error("Error deleting product:", error)
+      alert("Lỗi xóa sản phẩm: " + error.message)
     }
   }
 }
@@ -618,9 +669,11 @@ function initCloudinaryWidget() {
         const previewImage = document.getElementById("previewImage")
         const imageUrlInput = document.getElementById("productImageUrl")
 
-        previewImage.src = imageUrl
-        imageUrlInput.value = imageUrl
-        previewContainer.classList.remove("hidden")
+        if (previewImage && imageUrlInput && previewContainer) {
+          previewImage.src = imageUrl
+          imageUrlInput.value = imageUrl
+          previewContainer.classList.remove("hidden")
+        }
       }
 
       if (error) {
@@ -652,8 +705,8 @@ function setupCloudinaryUpload() {
       const previewContainer = document.getElementById("productImagePreview")
       const imageUrlInput = document.getElementById("productImageUrl")
 
-      previewContainer.classList.add("hidden")
-      imageUrlInput.value = ""
+      if (previewContainer) previewContainer.classList.add("hidden")
+      if (imageUrlInput) imageUrlInput.value = ""
     })
   }
 }
@@ -671,7 +724,7 @@ window.addEventListener("load", () => {
   initCloudinaryWidget()
   setupCloudinaryUpload()
   renderRecentOrders()
-  renderProductsTable()
+  loadProductsFromFirestore() // Load from Firestore instead of mock data
   renderOrdersTable()
   renderUsersTable()
   renderCategories()

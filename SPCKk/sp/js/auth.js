@@ -104,14 +104,22 @@ if (document.getElementById("registerForm")) {
     e.preventDefault()
     const isPassword = passwordInput.type === "password"
     passwordInput.type = isPassword ? "text" : "password"
-    togglePasswordBtn.querySelector("span").textContent = isPassword ? "🙈" : "👁️"
+    const icon = togglePasswordBtn.querySelector("i")
+    if (icon) {
+      icon.classList.toggle("fa-eye")
+      icon.classList.toggle("fa-eye-slash")
+    }
   })
 
   toggleConfirmBtn.addEventListener("click", (e) => {
     e.preventDefault()
     const isPassword = confirmInput.type === "password"
     confirmInput.type = isPassword ? "text" : "password"
-    toggleConfirmBtn.querySelector("span").textContent = isPassword ? "🙈" : "👁️"
+    const icon = toggleConfirmBtn.querySelector("i")
+    if (icon) {
+      icon.classList.toggle("fa-eye")
+      icon.classList.toggle("fa-eye-slash")
+    }
   })
 
   // PASSWORD STRENGTH INDICATOR
@@ -268,7 +276,11 @@ if (document.getElementById("loginForm")) {
     e.preventDefault()
     const isPassword = passwordInput.type === "password"
     passwordInput.type = isPassword ? "text" : "password"
-    togglePasswordBtn.querySelector("span").textContent = isPassword ? "🙈" : "👁️"
+    const icon = togglePasswordBtn.querySelector("i")
+    if (icon) {
+      icon.classList.toggle("fa-eye")
+      icon.classList.toggle("fa-eye-slash")
+    }
   })
 
   // LOAD REMEMBERED EMAIL
