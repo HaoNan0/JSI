@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed Products to Firestore</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 3rem auto; padding: 1rem; text-align: center; }
+    h1 { font-size: 1.25rem; }
+    .status { padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+    .status.loading { background: #fef3c7; color: #92400e; }
+    .status.success { background: #d1fae5; color: #065f46; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+    .status.skipped { background: #e0e7ff; color: #3730a3; }
+    pre { text-align: left; font-size: 0.85rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Seed Products → Firestore</h1>
+  <p>Chạy một lần để chuyển toàn bộ sản phẩm mẫu vào Firestore.</p>
+  <div id="status" class="status loading">Đang seed...</div>
+  <script type="module">
+    import { runSeed } from "./js/seed-products.js"
+    const el = document.getElementById("status")
+    try {
+      const result = await runSeed()
+      el.classList.remove("loading")
+      if (result.skipped) {
+        el.classList.add("skipped")
+        el.textContent = result.message
+      } else {
+        el.classList.add("success")
+        el.innerHTML = result.message + "<pre>" + JSON.stringify(result.created, null, 2) + "</pre>"
+      }
+    } catch (e) {
+      el.classList.remove("loading")
+      el.classList.add("error")
+      el.textContent = "Lỗi: " + e.message
+      console.error(e)
+    }
+  </script>
+</body>
+</html>

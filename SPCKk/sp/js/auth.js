@@ -88,8 +88,10 @@ function showSuccess(message) {
 }
 
 // ============= REGISTER PAGE =============
-if (document.getElementById("registerForm")) {
+function setupRegisterForm() {
   const form = document.getElementById("registerForm")
+  if (!form) return
+
   const nameInput = document.getElementById("name")
   const emailInput = document.getElementById("email")
   const passwordInput = document.getElementById("password")
@@ -98,6 +100,11 @@ if (document.getElementById("registerForm")) {
   const toggleConfirmBtn = document.getElementById("toggleConfirm")
   const strengthBar = document.getElementById("strengthBar")
   const strengthText = document.getElementById("strengthText")
+
+  if (!nameInput || !emailInput || !passwordInput || !confirmInput || !togglePasswordBtn || !toggleConfirmBtn) {
+    console.error("Register form elements not found")
+    return
+  }
 
   // PASSWORD VISIBILITY TOGGLE
   togglePasswordBtn.addEventListener("click", (e) => {
@@ -257,19 +264,35 @@ if (document.getElementById("registerForm")) {
       }
 
       showError(errorMessage)
-      submitBtn.disabled = false
-      submitBtn.textContent = "Đăng Ký"
+      if (submitBtn) {
+        submitBtn.disabled = false
+        submitBtn.textContent = "Đăng Ký"
+      }
     }
   })
 }
 
+// Initialize register form when DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupRegisterForm)
+} else {
+  setupRegisterForm()
+}
+
 // ============= LOGIN PAGE =============
-if (document.getElementById("loginForm")) {
+function setupLoginForm() {
   const form = document.getElementById("loginForm")
+  if (!form) return
+
   const emailInput = document.getElementById("loginEmail")
   const passwordInput = document.getElementById("loginPassword")
   const togglePasswordBtn = document.getElementById("toggleLoginPassword")
   const rememberMeCheckbox = document.getElementById("rememberMe")
+
+  if (!emailInput || !passwordInput || !togglePasswordBtn || !rememberMeCheckbox) {
+    console.error("Login form elements not found")
+    return
+  }
 
   // PASSWORD VISIBILITY TOGGLE
   togglePasswordBtn.addEventListener("click", (e) => {
@@ -284,13 +307,11 @@ if (document.getElementById("loginForm")) {
   })
 
   // LOAD REMEMBERED EMAIL
-  window.addEventListener("load", () => {
-    const rememberedEmail = localStorage.getItem("remembered_email")
-    if (rememberedEmail) {
-      emailInput.value = rememberedEmail
-      rememberMeCheckbox.checked = true
-    }
-  })
+  const rememberedEmail = localStorage.getItem("remembered_email")
+  if (rememberedEmail) {
+    emailInput.value = rememberedEmail
+    rememberMeCheckbox.checked = true
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault()
@@ -299,13 +320,18 @@ if (document.getElementById("loginForm")) {
     const password = passwordInput.value
 
     // Validation
+    if (!email) {
+      showError("Vui lòng nhập email")
+      return
+    }
+
     if (!validateEmail(email)) {
       showError("Email không hợp lệ")
       return
     }
 
-    if (password.length < 8) {
-      showError("Mật khẩu phải có ít nhất 8 ký tự")
+    if (!password) {
+      showError("Vui lòng nhập mật khẩu")
       return
     }
 
@@ -318,8 +344,10 @@ if (document.getElementById("loginForm")) {
 
     // Disable submit button
     const submitBtn = form.querySelector('button[type="submit"]')
-    submitBtn.disabled = true
-    submitBtn.textContent = "Đang đăng nhập..."
+    if (submitBtn) {
+      submitBtn.disabled = true
+      submitBtn.textContent = "Đang đăng nhập..."
+    }
 
     try {
       // SIGN IN WITH FIREBASE
@@ -329,8 +357,13 @@ if (document.getElementById("loginForm")) {
 
       // GET USER DATA FROM FIRESTORE
       // Lý do: Lấy thông tin chi tiết từ database
-      const userDoc = await getDoc(doc(db, "users", user.uid))
-      const userData = userDoc.data()
+      let userData = null
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid))
+        userData = userDoc.data()
+      } catch (dbError) {
+        console.error("Error fetching user data:", dbError)
+      }
 
       showSuccess("Đăng nhập thành công!")
 
@@ -357,11 +390,22 @@ if (document.getElementById("loginForm")) {
         errorMessage = "Email hoặc mật khẩu không đúng"
       } else if (error.code === "auth/too-many-requests") {
         errorMessage = "Quá nhiều lần thử. Vui lòng thử lại sau"
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Email không hợp lệ"
       }
 
       showError(errorMessage)
-      submitBtn.disabled = false
-      submitBtn.textContent = "Đăng Nhập"
+      if (submitBtn) {
+        submitBtn.disabled = false
+        submitBtn.textContent = "Đăng Nhập"
+      }
     }
   })
+}
+
+// Initialize login form when DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupLoginForm)
+} else {
+  setupLoginForm()
 }

@@ -8,34 +8,50 @@ import { auth } from "./firebase-config.js"
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 
 // CART STATE
-// Lý do: Load từ localStorage để persist data
+// Explanation: Global array to store cart items. Loaded from localStorage on page load.
+// Structure: [{ productId, name, price, image, quantity }, ...]
 let cart = []
 
 // CONSTANTS
+// Explanation: Fixed shipping fee in Vietnamese Dong (VND)
 const SHIPPING_FEE = 30000 // 30,000 VND
 
 // LOAD CART FROM LOCALSTORAGE
-// Lý do: Restore cart khi page load
+// Explanation: Restores cart data from browser localStorage when page loads.
+// Validates and cleans up incomplete items (missing required properties).
+// Required properties: price (number), name (string), image (string)
 function loadCart() {
   const savedCart = localStorage.getItem("cart")
   if (savedCart) {
     try {
       cart = JSON.parse(savedCart)
+      // Ensure cart is an array
+      if (!Array.isArray(cart)) {
+        cart = []
+      }
     } catch (e) {
+      console.error("Error parsing cart from localStorage:", e)
       cart = []
     }
   }
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:27',message:'loadCart: cart array after parse',data:{cartLength:cart.length,cartItems:cart.map((item,idx)=>({index:idx,hasProductId:!!item.productId,hasName:!!item.name,hasPrice:!!item.price,hasImage:!!item.image,hasQuantity:!!item.quantity,priceType:typeof item.price,priceValue:item.price,allKeys:Object.keys(item)})),rawCart:cart},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
   
-  // Clean up: Remove incomplete items (missing required properties from old localStorage data)
+  // Clean up: Remove incomplete items (missing required properties)
+  // Fix: Validate that price is a number, not just truthy (0 would be invalid)
   const initialLength = cart.length
-  cart = cart.filter(item => item.price && item.name && item.image)
+  cart = cart.filter(item => 
+    item && 
+    typeof item.price === 'number' && 
+    item.price > 0 && 
+    item.name && 
+    typeof item.name === 'string' &&
+    item.image && 
+    typeof item.image === 'string' &&
+    item.quantity &&
+    typeof item.quantity === 'number' &&
+    item.quantity > 0
+  )
+  
   if (cart.length < initialLength) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:32',message:'loadCart: removed incomplete items',data:{initialLength:initialLength,cleanedLength:cart.length,removed:initialLength-cart.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     saveCart() // Save cleaned cart back to localStorage
   }
   
@@ -44,118 +60,182 @@ function loadCart() {
 }
 
 // SAVE CART TO LOCALSTORAGE
-// Lý do: Persist cart data
+// Explanation: Persists cart data to browser localStorage for persistence across page reloads.
+// Also updates the cart badge count in the UI.
 function saveCart() {
-  localStorage.setItem("cart", JSON.stringify(cart))
-  updateCartBadge()
+  try {
+    localStorage.setItem("cart", JSON.stringify(cart))
+    updateCartBadge()
+  } catch (e) {
+    console.error("Error saving cart to localStorage:", e)
+    // localStorage might be full or disabled
+  }
 }
 
 // UPDATE CART BADGE
-// Lý do: Hiển thị số lượng items trong icon giỏ hàng
+// Explanation: Updates the cart badge number showing total quantity of items in cart.
+// Only counts valid items (with all required properties and valid values).
 function updateCartBadge() {
   // Only count valid items (with all required properties)
-  const validCart = cart.filter(item => item.price && item.name && item.image)
+  const validCart = cart.filter(item => 
+    item && 
+    typeof item.price === 'number' && 
+    item.price > 0 && 
+    item.name && 
+    item.image &&
+    item.quantity &&
+    typeof item.quantity === 'number' &&
+    item.quantity > 0
+  )
   const total = validCart.reduce((sum, item) => sum + item.quantity, 0)
   const badge = document.getElementById("cartBadge")
   if (badge) {
-    badge.textContent = total
+    badge.textContent = total > 0 ? total : ""
   }
 }
 
 // RENDER CART
-// Lý do: Generate HTML cho cart items và summary
+// Explanation: Generates HTML for cart items and displays them. Shows empty state if cart is empty.
+// Fix: Uses productId instead of array index to avoid index mismatches when items are filtered.
 function renderCart() {
   const itemsList = document.getElementById("cartItemsList")
   const emptyCart = document.getElementById("emptyCart")
   const cartItemCount = document.getElementById("cartItemCount")
 
-  // Check if cart is empty
-  if (cart.length === 0) {
-    itemsList.innerHTML = ""
-    emptyCart.classList.remove("hidden")
-    cartItemCount.textContent = "0 sản phẩm"
+  // Filter valid items first
+  const validCart = cart.filter(item => 
+    item && 
+    typeof item.price === 'number' && 
+    item.price > 0 && 
+    item.name && 
+    typeof item.name === 'string' &&
+    item.image && 
+    typeof item.image === 'string' &&
+    item.quantity &&
+    typeof item.quantity === 'number' &&
+    item.quantity > 0
+  )
+
+  // Check if cart is empty (using valid items)
+  if (validCart.length === 0) {
+    if (itemsList) itemsList.innerHTML = ""
+    if (emptyCart) emptyCart.classList.remove("hidden")
+    if (cartItemCount) cartItemCount.textContent = "0 sản phẩm"
     updateSummary()
     return
   }
 
-  // Hide empty state
-  emptyCart.classList.add("hidden")
-  // Only count valid items (with all required properties)
-  const validCart = cart.filter(item => item.price && item.name && item.image)
-  cartItemCount.textContent = `${validCart.length} sản phẩm`
-
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:70',message:'renderCart: before map - cart structure',data:{cartLength:cart.length,validCartLength:validCart.length,items:cart.map((item,idx)=>({index:idx,keys:Object.keys(item),productId:item.productId,name:item.name,price:item.price,image:item.image,quantity:item.quantity,isValid:!!(item.price&&item.name&&item.image)}))},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
+  // Hide empty state and show items
+  if (emptyCart) emptyCart.classList.add("hidden")
+  if (cartItemCount) cartItemCount.textContent = `${validCart.length} sản phẩm`
 
   // Render cart items
-  itemsList.innerHTML = cart
-    .map(
-      (item, index) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:72',message:'renderCart: map item before toLocaleString',data:{index:index,item:item,hasPrice:!!item.price,priceType:typeof item.price,priceValue:item.price,allKeys:Object.keys(item)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        // Safeguard: Skip rendering items missing required properties (from old localStorage data)
-        if (!item.price || !item.name || !item.image) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/318ddf1e-b891-4683-862e-0b209af2f534',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart.js:75',message:'renderCart: skipping incomplete item',data:{index:index,item:item,missingPrice:!item.price,missingName:!item.name,missingImage:!item.image},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-          // #endregion
-          return '' // Return empty string to skip rendering this item
+  // Fix: Use productId for identification instead of array index to avoid index mismatches
+  if (itemsList) {
+    itemsList.innerHTML = validCart
+      .map((item) => {
+        // Escape HTML to prevent XSS attacks
+        const escapeHtml = (text) => {
+          const div = document.createElement('div')
+          div.textContent = text
+          return div.innerHTML
         }
+        
+        // Escape productId for use in onclick handlers (prevent XSS)
+        const escapeJsString = (str) => {
+          return String(str || '').replace(/'/g, "\\'").replace(/"/g, '\\"')
+        }
+        
+        const productId = escapeJsString(item.productId || '')
+        const name = escapeHtml(item.name)
+        const image = escapeHtml(item.image)
+        const price = typeof item.price === 'number' ? item.price : 0
+        const quantity = typeof item.quantity === 'number' ? item.quantity : 1
+        
         return `
-    <div class="cart-item" data-index="${index}">
+    <div class="cart-item" data-product-id="${escapeHtml(item.productId || '')}">
       <div class="cart-item-image">
-        <img src="${item.image}" alt="${item.name}">
+        <img src="${image}" alt="${name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3C/svg%3E';">
       </div>
       
       <div class="cart-item-info">
-        <h3 class="cart-item-name">${item.name}</h3>
-        <p class="cart-item-price">₫${item.price.toLocaleString("vi-VN")}</p>
+        <h3 class="cart-item-name">${name}</h3>
+        <p class="cart-item-price">₫${price.toLocaleString("vi-VN")}</p>
       </div>
       
       <div class="cart-item-actions">
         <div class="quantity-selector">
-          <button class="quantity-btn" onclick="updateQuantity(${index}, -1)" ${item.quantity <= 1 ? "disabled" : ""}>-</button>
-          <input type="number" class="quantity-input" value="${item.quantity}" readonly>
-          <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+          <button class="quantity-btn" onclick="updateQuantityByProductId('${productId}', -1)" ${quantity <= 1 ? "disabled" : ""}>-</button>
+          <input type="number" class="quantity-input" value="${quantity}" min="1" readonly>
+          <button class="quantity-btn" onclick="updateQuantityByProductId('${productId}', 1)">+</button>
         </div>
         
-        <button class="remove-btn" onclick="removeItem(${index})">
-          <span>🗑️</span>
+        <button class="remove-btn" onclick="removeItemByProductId('${productId}')">
+          <span><i class="fa-solid fa-trash"></i></span>
           <span>Xóa</span>
         </button>
       </div>
     </div>
-  `;
-      }
-    )
-    .join("")
+  `
+      })
+      .join("")
+  }
 
   updateSummary()
 }
 
-// UPDATE QUANTITY
-// Lý do: Tăng/giảm số lượng sản phẩm
+// UPDATE QUANTITY (Legacy - kept for backward compatibility)
+// Explanation: Updates item quantity by array index. Deprecated in favor of updateQuantityByProductId.
+// Fix: Added validation to prevent errors with invalid indices.
 window.updateQuantity = (index, change) => {
-  if (index < 0 || index >= cart.length) return
-
-  cart[index].quantity += change
-
-  // Minimum quantity is 1
-  if (cart[index].quantity < 1) {
-    cart[index].quantity = 1
+  if (index < 0 || index >= cart.length) {
+    console.warn("Invalid cart index:", index)
+    return
   }
+
+  const item = cart[index]
+  if (!item) return
+
+  item.quantity = Math.max(1, (item.quantity || 1) + change)
 
   saveCart()
   renderCart()
 }
 
-// REMOVE ITEM
-// Lý do: Xóa sản phẩm khỏi giỏ hàng
-window.removeItem = (index) => {
-  if (index < 0 || index >= cart.length) return
+// UPDATE QUANTITY BY PRODUCT ID
+// Explanation: Updates item quantity by productId (more reliable than array index).
+// Fix: Uses productId to find item, preventing index mismatches after filtering.
+window.updateQuantityByProductId = (productId, change) => {
+  if (!productId) {
+    console.warn("Missing productId")
+    return
+  }
 
-  const itemName = cart[index].name
+  const item = cart.find(item => item.productId === productId)
+  if (!item) {
+    console.warn("Product not found in cart:", productId)
+    return
+  }
+
+  item.quantity = Math.max(1, (item.quantity || 1) + change)
+
+  saveCart()
+  renderCart()
+}
+
+// REMOVE ITEM (Legacy - kept for backward compatibility)
+// Explanation: Removes item from cart by array index. Deprecated in favor of removeItemByProductId.
+// Fix: Added validation and error handling.
+window.removeItem = (index) => {
+  if (index < 0 || index >= cart.length) {
+    console.warn("Invalid cart index:", index)
+    return
+  }
+
+  const item = cart[index]
+  if (!item) return
+
+  const itemName = item.name || "sản phẩm"
 
   // Confirm before remove
   if (confirm(`Bạn có chắc muốn xóa "${itemName}" khỏi giỏ hàng?`)) {
@@ -168,24 +248,94 @@ window.removeItem = (index) => {
   }
 }
 
+// REMOVE ITEM BY PRODUCT ID
+// Explanation: Removes item from cart by productId (more reliable than array index).
+// Fix: Uses productId to find and remove item, preventing index mismatches.
+window.removeItemByProductId = (productId) => {
+  if (!productId) {
+    console.warn("Missing productId")
+    return
+  }
+
+  const item = cart.find(item => item.productId === productId)
+  if (!item) {
+    console.warn("Product not found in cart:", productId)
+    return
+  }
+
+  const itemName = item.name || "sản phẩm"
+
+  // Confirm before remove
+  if (confirm(`Bạn có chắc muốn xóa "${itemName}" khỏi giỏ hàng?`)) {
+    const index = cart.findIndex(item => item.productId === productId)
+    if (index !== -1) {
+      cart.splice(index, 1)
+      saveCart()
+      renderCart()
+
+      // Show toast
+      showToast(`Đã xóa "${itemName}" khỏi giỏ hàng`, "success")
+    }
+  }
+}
+
 // UPDATE SUMMARY
-// Lý do: Tính tổng tiền, phí ship, tổng cuối
+// Explanation: Calculates and displays cart totals: subtotal, shipping fee, and final total.
+// Only includes valid items in calculations (with proper price, name, image, quantity).
 function updateSummary() {
-  // Filter out incomplete items (missing price) when calculating totals
-  const validCart = cart.filter(item => item.price && item.name && item.image)
-  const subtotal = validCart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  // Filter out incomplete items when calculating totals
+  const validCart = cart.filter(item => 
+    item && 
+    typeof item.price === 'number' && 
+    item.price > 0 && 
+    item.name && 
+    item.image &&
+    item.quantity &&
+    typeof item.quantity === 'number' &&
+    item.quantity > 0
+  )
+  
+  const subtotal = validCart.reduce((sum, item) => {
+    const price = typeof item.price === 'number' ? item.price : 0
+    const quantity = typeof item.quantity === 'number' ? item.quantity : 0
+    return sum + (price * quantity)
+  }, 0)
+  
   const shipping = validCart.length > 0 ? SHIPPING_FEE : 0
   const total = subtotal + shipping
 
-  document.getElementById("subtotal").textContent = `₫${subtotal.toLocaleString("vi-VN")}`
-  document.getElementById("shipping").textContent = validCart.length > 0 ? `₫${shipping.toLocaleString("vi-VN")}` : "₫0"
-  document.getElementById("total").textContent = `₫${total.toLocaleString("vi-VN")}`
+  const subtotalEl = document.getElementById("subtotal")
+  const shippingEl = document.getElementById("shipping")
+  const totalEl = document.getElementById("total")
+
+  if (subtotalEl) {
+    subtotalEl.textContent = `₫${subtotal.toLocaleString("vi-VN")}`
+  }
+  if (shippingEl) {
+    shippingEl.textContent = validCart.length > 0 ? `₫${shipping.toLocaleString("vi-VN")}` : "₫0"
+  }
+  if (totalEl) {
+    totalEl.textContent = `₫${total.toLocaleString("vi-VN")}`
+  }
 }
 
 // CHECKOUT
-// Lý do: Xử lý thanh toán (tạm thời chỉ alert)
+// Explanation: Handles checkout process. Checks if user is logged in and validates cart has items.
+// Fix: Uses valid cart items for total calculation, consistent with other functions.
 function handleCheckout() {
-  if (cart.length === 0) {
+  // Filter valid items first
+  const validCart = cart.filter(item => 
+    item && 
+    typeof item.price === 'number' && 
+    item.price > 0 && 
+    item.name && 
+    item.image &&
+    item.quantity &&
+    typeof item.quantity === 'number' &&
+    item.quantity > 0
+  )
+
+  if (validCart.length === 0) {
     showToast("Giỏ hàng trống!", "error")
     return
   }
@@ -194,10 +344,17 @@ function handleCheckout() {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // User is logged in, proceed to checkout
-      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + SHIPPING_FEE
+      // Fix: Use validCart instead of cart for total calculation
+      const subtotal = validCart.reduce((sum, item) => {
+        const price = typeof item.price === 'number' ? item.price : 0
+        const quantity = typeof item.quantity === 'number' ? item.quantity : 0
+        return sum + (price * quantity)
+      }, 0)
+      const total = subtotal + SHIPPING_FEE
+      
       alert(`Tổng thanh toán: ₫${total.toLocaleString("vi-VN")}\n\nTính năng thanh toán sẽ được cập nhật sau!`)
 
-      // Clear cart after checkout
+      // Clear cart after checkout (commented out for testing)
       // cart = []
       // saveCart()
       // renderCart()
@@ -212,10 +369,15 @@ function handleCheckout() {
 }
 
 // SHOW TOAST
-// Lý do: Hiển thị thông báo đẹp thay vì alert()
+// Explanation: Displays a temporary notification message (toast) instead of using alert().
+// Creates a styled div element that appears at bottom-right, auto-removes after 3 seconds.
+// Types: "success" (green) or "error" (red).
 function showToast(message, type = "success") {
+  if (!message) return
+
   const toast = document.createElement("div")
   toast.textContent = message
+  toast.className = `toast toast-${type}`
   toast.style.cssText = `
     position: fixed;
     bottom: 20px;
@@ -227,17 +389,30 @@ function showToast(message, type = "success") {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 10000;
     animation: slideIn 0.3s ease;
+    max-width: 300px;
+    word-wrap: break-word;
   `
+  
+  // Remove any existing toasts to prevent stacking
+  const existingToasts = document.querySelectorAll('.toast')
+  existingToasts.forEach(t => t.remove())
+  
   document.body.appendChild(toast)
 
   setTimeout(() => {
     toast.style.animation = "slideOut 0.3s ease"
-    setTimeout(() => toast.remove(), 300)
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.remove()
+      }
+    }, 300)
   }, 3000)
 }
 
 // CHECK AUTH STATUS
-// Lý do: Hiển thị UI khác dựa trên login status
+// Explanation: Updates UI based on user authentication status.
+// Shows/hides login buttons and user profile dropdown accordingly.
+// Sets up logout button handler when user is logged in.
 function checkAuthStatus() {
   onAuthStateChanged(auth, (user) => {
     const authButtons = document.getElementById("authButtons")
@@ -246,42 +421,72 @@ function checkAuthStatus() {
     const logoutBtn = document.getElementById("logoutBtn")
 
     if (user) {
-      authButtons?.classList.add("hidden")
-      userProfile?.classList.remove("hidden")
+      // USER LOGGED IN - Hide auth buttons, show profile
+      if (authButtons) {
+        authButtons.style.display = "none"
+        authButtons.classList.add("hidden")
+      }
+      if (userProfile) {
+        userProfile.style.display = "flex"
+        userProfile.classList.remove("hidden")
+      }
       if (userName) {
-        userName.textContent = user.displayName || user.email
+        // Fix: Escape user input to prevent XSS
+        const displayName = user.displayName || user.email || "User"
+        userName.textContent = displayName
       }
 
       if (logoutBtn) {
-        logoutBtn.onclick = async (e) => {
-          e.preventDefault()
-          try {
-            await signOut(auth)
-            window.location.href = "index.html"
-          } catch (error) {
-            console.error("Logout error:", error)
+        // Fix: Remove previous event listeners to prevent duplicates
+        logoutBtn.replaceWith(logoutBtn.cloneNode(true))
+        const newLogoutBtn = document.getElementById("logoutBtn")
+        
+        if (newLogoutBtn) {
+          newLogoutBtn.onclick = async (e) => {
+            e.preventDefault()
+            try {
+              await signOut(auth)
+              window.location.href = "index.html"
+            } catch (error) {
+              console.error("Logout error:", error)
+              showToast("Lỗi khi đăng xuất. Vui lòng thử lại.", "error")
+            }
           }
         }
       }
     } else {
-      authButtons?.classList.remove("hidden")
-      userProfile?.classList.add("hidden")
+      // USER NOT LOGGED IN - Show auth buttons, hide profile
+      if (authButtons) {
+        authButtons.style.display = "flex"
+        authButtons.classList.remove("hidden")
+      }
+      if (userProfile) {
+        userProfile.style.display = "none"
+        userProfile.classList.add("hidden")
+      }
     }
   })
 }
 
 // DROPDOWN MENU TOGGLE
+// Explanation: Sets up click handlers for user profile dropdown menu.
+// Toggles menu visibility on profile click, closes when clicking outside.
 function setupDropdownMenu() {
   const userProfile = document.getElementById("userProfile")
   const dropdownMenu = document.querySelector(".dropdown-menu")
 
   if (userProfile && dropdownMenu) {
-    userProfile.addEventListener("click", () => {
+    // Fix: Use event delegation and check if click is on profile or menu
+    userProfile.addEventListener("click", (e) => {
+      e.stopPropagation()
       dropdownMenu.classList.toggle("active")
     })
 
+    // Close dropdown when clicking outside
     document.addEventListener("click", (e) => {
-      if (!userProfile.contains(e.target)) {
+      if (userProfile && dropdownMenu && 
+          !userProfile.contains(e.target) && 
+          !dropdownMenu.contains(e.target)) {
         dropdownMenu.classList.remove("active")
       }
     })
@@ -289,31 +494,51 @@ function setupDropdownMenu() {
 }
 
 // HAMBURGER MENU
+// Explanation: Sets up mobile hamburger menu toggle functionality.
+// Toggles active class on both hamburger icon and navigation menu.
 function setupHamburgerMenu() {
   const hamburger = document.getElementById("hamburger")
   const navMenu = document.getElementById("navMenu")
 
   if (hamburger && navMenu) {
-    hamburger.addEventListener("click", () => {
+    hamburger.addEventListener("click", (e) => {
+      e.stopPropagation()
       hamburger.classList.toggle("active")
       navMenu.classList.toggle("active")
+    })
+
+    // Close menu when clicking outside on mobile
+    document.addEventListener("click", (e) => {
+      if (hamburger && navMenu && 
+          !hamburger.contains(e.target) && 
+          !navMenu.contains(e.target) &&
+          navMenu.classList.contains("active")) {
+        hamburger.classList.remove("active")
+        navMenu.classList.remove("active")
+      }
     })
   }
 }
 
 // CART ICON CLICK
+// Explanation: Handles cart icon click behavior on cart page.
+// Since we're already on the cart page, it just scrolls to top instead of navigating.
 function setupCartIcon() {
   const cartIcon = document.getElementById("cartIcon")
   if (cartIcon) {
-    cartIcon.addEventListener("click", () => {
-      // Already on cart page, do nothing or scroll to top
+    cartIcon.addEventListener("click", (e) => {
+      // Already on cart page, scroll to top
+      e.preventDefault()
       window.scrollTo({ top: 0, behavior: "smooth" })
     })
   }
 }
 
 // INITIALIZE PAGE
-window.addEventListener("load", () => {
+// Explanation: Initializes all cart page functionality when DOM is fully loaded.
+// Sets up cart display, authentication UI, navigation menus, and checkout handler.
+// Fix: Uses DOMContentLoaded for faster initialization, with fallback for edge cases.
+function initializePage() {
   loadCart()
   checkAuthStatus()
   setupDropdownMenu()
@@ -323,6 +548,18 @@ window.addEventListener("load", () => {
   // Checkout button handler
   const checkoutBtn = document.getElementById("checkoutBtn")
   if (checkoutBtn) {
-    checkoutBtn.addEventListener("click", handleCheckout)
+    checkoutBtn.addEventListener("click", (e) => {
+      e.preventDefault()
+      handleCheckout()
+    })
   }
-})
+}
+
+// Use DOMContentLoaded for faster initialization
+if (document.readyState === 'loading') {
+  // DOMContentLoaded has not fired yet, wait for it
+  window.addEventListener("DOMContentLoaded", initializePage)
+} else {
+  // DOMContentLoaded has already fired, initialize immediately
+  initializePage()
+}

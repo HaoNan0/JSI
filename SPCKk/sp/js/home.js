@@ -1,140 +1,36 @@
 /* ============================================
    HOME.JS
    Render products, cart, auth UI, navigation
+   Products loaded from Firestore
    ============================================ */
 
-import { auth } from "./firebase-config.js"
+import { auth, db } from "./firebase-config.js"
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
 
-// MOCK DATA - Products
-// Lý do: Dữ liệu tạm để demo, ngoài thực tế sẽ từ API
-const mockProducts = [
-  {
-    id: 1,
-    name: "Laptop Gaming Pro",
-    price: 25000000,
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.5,
-    reviews: 128,
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Tai Nghe Wireless",
-    price: 2500000,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.2,
-    reviews: 256,
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Smartphone X",
-    price: 15000000,
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.8,
-    reviews: 512,
-    inStock: true,
-  },
-  {
-    id: 4,
-    name: "Màn Hình 4K",
-    price: 8500000,
-    image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.3,
-    reviews: 89,
-    inStock: false,
-  },
-  {
-    id: 5,
-    name: "Bàn Phím Cơ RGB",
-    price: 3200000,
-    image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.6,
-    reviews: 342,
-    inStock: true,
-  },
-  {
-    id: 6,
-    name: "Chuột Gaming Wireless",
-    price: 1800000,
-    image: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.4,
-    reviews: 215,
-    inStock: true,
-  },
-  {
-    id: 7,
-    name: "Loa Bluetooth",
-    price: 4500000,
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.7,
-    reviews: 178,
-    inStock: true,
-  },
-  {
-    id: 8,
-    name: "Webcam HD 1080p",
-    price: 2800000,
-    image: "https://images.unsplash.com/photo-1587825147138-346c228c0ac5?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.1,
-    reviews: 94,
-    inStock: true,
-  },
-  {
-    id: 9,
-    name: "Ổ Cứng SSD 1TB",
-    price: 5200000,
-    image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.9,
-    reviews: 456,
-    inStock: true,
-  },
-  {
-    id: 10,
-    name: "Camera Action 4K",
-    price: 12000000,
-    image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.8,
-    reviews: 287,
-    inStock: true,
-  },
-  {
-    id: 11,
-    name: "Smartwatch Pro",
-    price: 6500000,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.5,
-    reviews: 321,
-    inStock: true,
-  },
-  {
-    id: 12,
-    name: "Máy Tính Bảng 10 inch",
-    price: 8500000,
-    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
-    category: "electronics",
-    rating: 4.3,
-    reviews: 167,
-    inStock: true,
-  },
-]
+// PRODUCTS - loaded from Firestore
+let products = []
 
 // CART - Global state
 // Lý do: Lưu items trong localStorage
 // Structure: { productId, name, price, image, quantity }
 let cart = []
+
+// LOAD PRODUCTS FROM FIRESTORE
+async function loadProductsFromFirestore() {
+  try {
+    const snapshot = await getDocs(collection(db, "products"))
+    products = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    renderProducts(products)
+  } catch (error) {
+    console.error("Error loading products:", error)
+    products = []
+    renderProducts([])
+  }
+}
 
 // LOAD CART FROM STORAGE
 // Lý do: Khi page load, restore cart từ localStorage
@@ -171,20 +67,23 @@ function saveCart() {
 // Lý do: Click "Thêm vào giỏ" button
 // Logic: Nếu product đã có, tăng quantity; nếu không, thêm mới
 function addToCart(productId, quantity = 1) {
-  // Find product in mock data
-  const product = mockProducts.find((p) => p.id === productId)
+  const product = products.find((p) => p.id === productId || String(p.id) === String(productId))
   if (!product) {
     alert("Sản phẩm không tồn tại!")
     return
   }
 
-  // Check if product already in cart
-  const existingItem = cart.find((item) => item.productId === productId)
+  const inStock = product.inStock !== undefined ? product.inStock : (product.stock || 0) > 0
+  if (!inStock) {
+    alert("Sản phẩm đã hết hàng!")
+    return
+  }
+
+  const existingItem = cart.find((item) => item.productId === productId || item.productId === product.id)
 
   if (existingItem) {
     existingItem.quantity += quantity
   } else {
-    // Save full product details in cart
     cart.push({
       productId: product.id,
       name: product.name,
@@ -196,7 +95,6 @@ function addToCart(productId, quantity = 1) {
 
   saveCart()
 
-  // Show success message
   const toast = document.createElement("div")
   toast.textContent = `Đã thêm "${product.name}" vào giỏ hàng!`
   toast.style.cssText = `
@@ -212,7 +110,6 @@ function addToCart(productId, quantity = 1) {
     animation: slideIn 0.3s ease;
   `
   document.body.appendChild(toast)
-
   setTimeout(() => {
     toast.style.animation = "slideOut 0.3s ease"
     setTimeout(() => toast.remove(), 300)
@@ -220,46 +117,53 @@ function addToCart(productId, quantity = 1) {
 }
 
 // RENDER PRODUCTS
-// Lý do: Generate HTML cho product grid
-// Map products array → HTML strings → join
-function renderProducts(products) {
+// Lý do: Generate HTML cho product grid from Firestore data
+function renderProducts(productsToRender) {
   const grid = document.getElementById("productGrid")
   if (!grid) return
 
-  grid.innerHTML = products
-    .map(
-      (product) => `
-    <div class="product-card" onclick="goToDetail(${product.id})">
+  if (!productsToRender || productsToRender.length === 0) {
+    grid.innerHTML = '<p class="text-center" style="grid-column: 1 / -1;">Chưa có sản phẩm. <a href="seed-products.html">Chạy seed</a> để thêm sản phẩm mẫu.</p>'
+    return
+  }
+
+  grid.innerHTML = productsToRender
+    .map((product) => {
+      const rating = product.rating ?? 0
+      const reviews = product.reviews ?? 0
+      const inStock = product.inStock !== undefined ? product.inStock : (product.stock || 0) > 0
+      const id = product.id
+      const idEsc = String(id).replace(/'/g, "\\'")
+      return `
+    <div class="product-card" onclick="goToDetail('${idEsc}')">
       <div class="product-image">
-        <img src="${product.image}" alt="${product.name}">
+        <img src="${product.image || ""}" alt="${product.name || ""}">
       </div>
       <div class="product-info">
-        <h3 class="product-name">${product.name}</h3>
+        <h3 class="product-name">${product.name || ""}</h3>
         <div class="product-rating">
-          <span>⭐ ${product.rating}</span>
-          <span>(${product.reviews} reviews)</span>
+          <span>⭐ ${rating}</span>
+          <span>(${reviews} reviews)</span>
         </div>
-        <p class="product-price">₫${product.price.toLocaleString("vi-VN")}</p>
-        <button class="btn btn-primary" onclick="event.stopPropagation(); addToCart(${product.id})">
-          Thêm vào giỏ
+        <p class="product-price">₫${(product.price || 0).toLocaleString("vi-VN")}</p>
+        <button class="btn btn-primary" onclick="event.stopPropagation(); addToCart('${idEsc}')" ${!inStock ? "disabled" : ""}>
+          ${inStock ? "Thêm vào giỏ" : "Hết hàng"}
         </button>
       </div>
     </div>
-  `,
-    )
+  `
+    })
     .join("")
 }
 
 // GO TO DETAIL PAGE
 // Lý do: Click sản phẩm card → chuyển tới detail.html
-// Pass product ID via URL param
 function goToDetail(productId) {
-  window.location.href = `detail.html?id=${productId}`
+  window.location.href = `detail.html?id=${encodeURIComponent(productId)}`
 }
 
 // CHECK AUTH STATUS
 // Lý do: Hiển thị UI khác dựa trên login status
-// Token ở localStorage có sẵn sau login
 function checkAuthStatus() {
   onAuthStateChanged(auth, (user) => {
     const authButtons = document.getElementById("authButtons")
@@ -268,7 +172,6 @@ function checkAuthStatus() {
     const logoutBtn = document.getElementById("logoutBtn")
 
     if (user) {
-      // USER LOGGED IN - Hide auth buttons, show profile
       if (authButtons) {
         authButtons.style.display = "none"
         authButtons.classList.add("hidden")
@@ -278,10 +181,9 @@ function checkAuthStatus() {
         userProfile.classList.remove("hidden")
       }
       if (userName) {
-        userName.textContent = user.displayName || user.email
+        userName.textContent = user.displayName || user.email || "User"
       }
 
-      // LOGOUT HANDLER
       if (logoutBtn) {
         logoutBtn.onclick = async (e) => {
           e.preventDefault()
@@ -294,20 +196,17 @@ function checkAuthStatus() {
         }
       }
 
-      // Auto-scroll to products section if coming from login
       const urlParams = new URLSearchParams(window.location.search)
       if (urlParams.get("from") === "login") {
         setTimeout(() => {
           const productsSection = document.getElementById("products")
           if (productsSection) {
             productsSection.scrollIntoView({ behavior: "smooth", block: "start" })
-            // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname)
           }
         }, 500)
       }
     } else {
-      // USER NOT LOGGED IN - Show auth buttons, hide profile
       if (authButtons) {
         authButtons.style.display = "flex"
         authButtons.classList.remove("hidden")
@@ -321,7 +220,6 @@ function checkAuthStatus() {
 }
 
 // DROPDOWN MENU TOGGLE
-// Lý do: Click avatar để show/hide dropdown
 function setupDropdownMenu() {
   const userProfile = document.getElementById("userProfile")
   const dropdownMenu = document.querySelector(".dropdown-menu")
@@ -331,7 +229,6 @@ function setupDropdownMenu() {
       dropdownMenu.classList.toggle("active")
     })
 
-    // Close khi click outside
     document.addEventListener("click", (e) => {
       if (!userProfile.contains(e.target)) {
         dropdownMenu.classList.remove("active")
@@ -341,7 +238,6 @@ function setupDropdownMenu() {
 }
 
 // MOBILE HAMBURGER MENU
-// Lý do: Toggle navigation menu trên mobile
 function setupHamburgerMenu() {
   const hamburger = document.getElementById("hamburger")
   const navMenu = document.getElementById("navMenu")
@@ -352,7 +248,6 @@ function setupHamburgerMenu() {
       navMenu.classList.toggle("active")
     })
 
-    // Close menu khi click nav link
     navMenu.querySelectorAll(".nav-link").forEach((link) => {
       link.addEventListener("click", () => {
         hamburger.classList.remove("active")
@@ -363,7 +258,6 @@ function setupHamburgerMenu() {
 }
 
 // CART ICON CLICK
-// Lý do: Chuyển đến trang giỏ hàng (sẽ tạo sau)
 function setupCartIcon() {
   const cartIcon = document.getElementById("cartIcon")
   if (cartIcon) {
@@ -374,16 +268,14 @@ function setupCartIcon() {
 }
 
 // INITIALIZE PAGE
-// Lý do: Chạy tất cả setup functions khi page load
 window.addEventListener("load", () => {
   loadCart()
   checkAuthStatus()
   setupDropdownMenu()
   setupHamburgerMenu()
   setupCartIcon()
-  renderProducts(mockProducts)
+  loadProductsFromFirestore()
 })
 
-// Make addToCart global for onclick
 window.addToCart = addToCart
 window.goToDetail = goToDetail
