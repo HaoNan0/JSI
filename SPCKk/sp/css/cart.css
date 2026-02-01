@@ -10,8 +10,11 @@
 .cart-section {
   min-height: calc(100vh - 200px);
   padding: var(--spacing-2xl) 0;
+  padding-top: calc(var(--spacing-2xl) + 80px); /* Account for sticky header */
   background: var(--bg-primary);
 }
+
+
 
 /* CART HEADER
    Lý do: Tiêu đề và số lượng sản phẩm
@@ -327,6 +330,7 @@
 @media (max-width: 640px) {
   .cart-section {
     padding: var(--spacing-xl) 0;
+    padding-top: calc(var(--spacing-xl) + 70px); /* Account for sticky header on mobile */
   }
 
   .cart-item {

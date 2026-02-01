@@ -6,15 +6,22 @@
 .profile-page {
   padding: var(--spacing-2xl) 0;
   min-height: calc(100vh - 200px);
+  padding-top: calc(var(--spacing-2xl) + 80px); /* Account for sticky header */
 }
 
 .profile-header {
   text-align: center;
   margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-lg);
 }
 
 .profile-header h1 {
   margin-bottom: var(--spacing-sm);
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .profile-header p {
@@ -29,6 +36,7 @@
   gap: var(--spacing-xl);
   max-width: 1200px;
   margin: 0 auto;
+  animation: fadeIn 0.5s ease;
 }
 
 /* PROFILE SIDEBAR */
@@ -44,6 +52,12 @@
   border: 1px solid var(--border-color);
   padding: var(--spacing-xl);
   text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+}
+
+.profile-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .avatar-section {
@@ -70,8 +84,8 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: var(--primary-color);
   color: white;
@@ -81,11 +95,17 @@
   align-items: center;
   justify-content: center;
   transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
 }
 
 .avatar-edit-btn:hover {
   background: var(--primary-dark);
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+.avatar-edit-btn i {
+  font-size: 0.9rem;
 }
 
 .profile-card h2 {
@@ -107,6 +127,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .profile-nav-link {
@@ -153,15 +174,20 @@
 }
 
 .section-header {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--bg-secondary);
 }
 
 .section-header h2 {
   margin-bottom: var(--spacing-xs);
+  font-size: 1.75rem;
+  color: var(--text-primary);
 }
 
 .section-header p {
   color: var(--text-secondary);
+  font-size: 1rem;
 }
 
 /* PROFILE FORM */
@@ -200,11 +226,18 @@
 .form-group select,
 .form-group textarea {
   padding: var(--spacing-md);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: 1rem;
   transition: var(--transition);
   font-family: inherit;
+  background: white;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+  border-color: var(--primary-light);
 }
 
 .form-group input:focus,
@@ -212,7 +245,8 @@
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+  transform: translateY(-1px);
 }
 
 .form-group input[readonly] {
@@ -273,8 +307,9 @@
   display: flex;
   gap: var(--spacing-md);
   justify-content: flex-end;
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border-color);
+  padding-top: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+  border-top: 2px solid var(--bg-secondary);
 }
 
 /* EMPTY STATE */
@@ -286,17 +321,21 @@
 
 .empty-state i {
   font-size: 4rem;
-  color: var(--border-color);
+  color: var(--primary-light);
   margin-bottom: var(--spacing-lg);
+  opacity: 0.6;
 }
 
 .empty-state h3 {
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
+  font-size: 1.5rem;
 }
 
 .empty-state p {
   margin-bottom: var(--spacing-lg);
+  font-size: 1rem;
+  color: var(--text-secondary);
 }
 
 /* ADDRESSES LIST */
@@ -308,18 +347,20 @@
 }
 
 .address-card {
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   transition: var(--transition);
+  background: white;
 }
 
 .address-card:hover {
   border-color: var(--primary-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+  transform: translateY(-2px);
 }
 
 .address-card.default {
@@ -392,13 +433,14 @@
 
 .modal-content {
   background: white;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-xl);
   width: 90%;
-  max-width: 500px;
+  max-width: 550px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
   animation: scaleUp 0.3s ease;
+  border: 1px solid var(--border-color);
 }
 
 .modal-header {
@@ -478,6 +520,7 @@
 @media (max-width: 768px) {
   .profile-layout {
     grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
   }
 
   .profile-sidebar {
@@ -492,11 +535,23 @@
     flex-direction: row;
     overflow-x: auto;
     padding: var(--spacing-sm);
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) transparent;
+  }
+
+  .profile-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .profile-nav::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 2px;
   }
 
   .profile-nav-link {
     white-space: nowrap;
     min-width: fit-content;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 
   .profile-nav-link span {
@@ -516,11 +571,16 @@
     width: 100%;
     justify-content: flex-end;
   }
+
+  .profile-header h1 {
+    font-size: 2rem;
+  }
 }
 
 @media (max-width: 480px) {
   .profile-page {
     padding: var(--spacing-lg) 0;
+    padding-top: calc(var(--spacing-lg) + 70px); /* Account for sticky header on mobile */
   }
 
   .profile-card {
@@ -534,5 +594,18 @@
 
   .modal-content {
     width: 95%;
+    max-height: 95vh;
+  }
+
+  .profile-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .profile-header p {
+    font-size: 0.95rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.5rem;
   }
 }

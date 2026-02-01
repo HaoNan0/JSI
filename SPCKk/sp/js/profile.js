@@ -453,6 +453,36 @@ function setupHeader() {
   const total = cart.reduce((sum, item) => sum + item.quantity, 0)
   const badge = document.getElementById("cartBadge")
   if (badge) badge.textContent = total
+
+  // Hamburger menu
+  const hamburger = document.getElementById("hamburger")
+  const navMenu = document.getElementById("navMenu")
+  if (hamburger && navMenu) {
+    hamburger.addEventListener("click", (e) => {
+      e.stopPropagation()
+      hamburger.classList.toggle("active")
+      navMenu.classList.toggle("active")
+    })
+
+    // Close menu when clicking on nav links
+    navMenu.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        hamburger.classList.remove("active")
+        navMenu.classList.remove("active")
+      })
+    })
+
+    // Close menu when clicking outside on mobile
+    document.addEventListener("click", (e) => {
+      if (hamburger && navMenu && 
+          !hamburger.contains(e.target) && 
+          !navMenu.contains(e.target) &&
+          navMenu.classList.contains("active")) {
+        hamburger.classList.remove("active")
+        navMenu.classList.remove("active")
+      }
+    })
+  }
 }
 
 // UTILITY FUNCTIONS
